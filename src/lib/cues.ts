@@ -20,9 +20,9 @@ export function sortCues(cues: Cue[], sort: SortOption): Cue[] {
     return list.sort(
       (a, b) =>
         Number(b.openActionItem) - Number(a.openActionItem) ||
-        urgencyRank[a.urgency] - urgencyRank[b.urgency],
+        (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3),
     );
   return list.sort(
-    (a, b) => urgencyRank[a.urgency] - urgencyRank[b.urgency] || a.minutesAgo - b.minutesAgo,
+    (a, b) => (urgencyRank[a.urgency] ?? 3) - (urgencyRank[b.urgency] ?? 3) || a.minutesAgo - b.minutesAgo,
   );
 }

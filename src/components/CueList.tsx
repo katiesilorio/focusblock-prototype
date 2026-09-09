@@ -21,7 +21,7 @@ export function CueList({
   onSort: (s: SortOption) => void;
   selectedId: string | null;
   onSelect: (id: string) => void;
-  firstFlagRef?: string;
+  firstFlagRef?: string | undefined;
 }) {
   const counts: Record<TabName, number> = {
     "Action required": 0,

@@ -8,7 +8,6 @@ import { SessionEndDialog } from "@/components/SessionEndDialog";
 import { Tour, TOUR_STEPS } from "@/components/Tour";
 import { tabOf, sortCues, type TabName } from "@/lib/cues";
 import { SUGGESTED_BLOCK, type SortOption } from "@/data/focusblock";
-import { UrgencyFlag, ToolIcon } from "@/components/bits";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,7 +52,7 @@ function FocusPage() {
 
   useEffect(() => {
     if (tourStep === null) return;
-    const anchor = TOUR_STEPS[tourStep].anchor;
+    const anchor = TOUR_STEPS[tourStep]?.anchor;
     if (anchor === "urgency-flag" || anchor === "right-panel") {
       setSelectedBlockId("checkout");
       setUnassignedOpen(false);

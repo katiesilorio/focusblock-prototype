@@ -45,7 +45,7 @@ export function Tour({
   onBack: () => void;
   onSkip: () => void;
 }) {
-  const current = TOUR_STEPS[step];
+  const current = TOUR_STEPS[step] ?? TOUR_STEPS[0]!;
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
   useEffect(() => {
