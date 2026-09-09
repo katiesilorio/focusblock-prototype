@@ -337,12 +337,6 @@ function FocusPage() {
           }}
         />
       )}
-
-      {/* Kept for icon reference in the list rows */}
-      <span className="hidden">
-        <ToolIcon tool="Slack" />
-        <UrgencyFlag urgency="FYI" reason="" />
-      </span>
     </div>
   );
 }
