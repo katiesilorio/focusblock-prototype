@@ -5,11 +5,41 @@ export type Tool = "Slack" | "Gmail" | "Jira" | "Google Drive";
 export type Urgency = "Blocking" | "Action needed" | "FYI";
 export type Priority = "High" | "Normal";
 
+export type ChipKind = "slack" | "doc" | "sheet" | "slide" | "jira" | "email" | "link";
+
 export type ContextChip = {
   id: string;
-  kind: "slack" | "doc" | "jira" | "email" | "link";
+  kind: ChipKind;
   label: string;
+  /** Where the chip points. Pasted links keep their real URL; seeded chips get a plausible one. */
+  url?: string;
 };
+
+function slug(s: string) {
+  return s.toLowerCase().replace(/^#/, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+/** The address a context chip opens. Seeded demo chips point at plausible addresses on the tool's own domain. */
+export function chipUrl(chip: ContextChip): string {
+  if (chip.url) return chip.url;
+  const s = slug(chip.label);
+  if (chip.kind === "slack") return `https://app.slack.com/client/harborandpine/${s}`;
+  if (chip.kind === "doc") return `https://docs.google.com/document/d/${s}`;
+  if (chip.kind === "sheet") return `https://docs.google.com/spreadsheets/d/${s}`;
+  if (chip.kind === "slide") return `https://docs.google.com/presentation/d/${s}`;
+  if (chip.kind === "jira") return `https://harborandpine.atlassian.net/browse/${chip.label}`;
+  if (chip.kind === "email") return `https://mail.google.com/mail/#search/${encodeURIComponent(chip.label)}`;
+  return chip.label.startsWith("http") ? chip.label : `https://${chip.label}`;
+}
+
+/** The address a cue opens in its source tool. Plausible, on the tool's own domain; nothing here is real. */
+export function cueUrl(cue: Cue): string {
+  const s = slug(cue.origin);
+  if (cue.tool === "Slack") return `https://app.slack.com/client/harborandpine/${s}`;
+  if (cue.tool === "Jira") return `https://harborandpine.atlassian.net/browse/${cue.ticketKey ?? s}`;
+  if (cue.tool === "Gmail") return `https://mail.google.com/mail/#search/${encodeURIComponent(cue.origin)}`;
+  return `https://docs.google.com/document/d/${s}`;
+}
 
 export type Cue = {
   id: string;

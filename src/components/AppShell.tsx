@@ -37,6 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <div className="sticky top-0 z-30">
       <div className="border-b border-border bg-muted/60 px-6 py-2 text-center text-xs text-muted-foreground">
         Prototype. Everything here is simulated: the team, the messages, the tickets, and the AI.
         Optimized for desktop, mobile coming soon.{" "}
@@ -63,6 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
       </header>
+      </div>
 
       <main className="flex-1">{children}</main>
 

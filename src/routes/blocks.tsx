@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { X } from "lucide-react";
-import { useApp } from "@/state/app-state";
-import { SUGGESTED_BLOCK, type Priority } from "@/data/focusblock";
+import { Plus, X } from "lucide-react";
+import { chipFromUrl, useApp } from "@/state/app-state";
+import { chipUrl, SUGGESTED_BLOCK, type Priority } from "@/data/focusblock";
+import { ChipIcon, ToolIcon } from "@/components/bits";
 
 export const Route = createFileRoute("/blocks")({
   head: () => ({
@@ -30,7 +31,7 @@ function BlocksPage() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [priority, setPriority] = useState<Priority>("Normal");
-  const [link, setLink] = useState("");
+  const [links, setLinks] = useState<string[]>([""]);
   const [suggestionName, setSuggestionName] = useState(SUGGESTED_BLOCK.name);
 
   const suggestionCues = app.cues.filter((c) => SUGGESTED_BLOCK.cueIds.includes(c.id));
@@ -50,8 +51,9 @@ function BlocksPage() {
           <p className="mt-1 text-sm text-muted-foreground">{SUGGESTED_BLOCK.description}</p>
           <ul className="mt-3 space-y-1">
             {suggestionCues.map((c) => (
-              <li key={c.id} className="truncate text-xs text-muted-foreground">
-                {c.tool}, {c.sender}: {c.preview}
+              <li key={c.id} className="flex items-center gap-2 truncate text-xs text-muted-foreground">
+                <ToolIcon tool={c.tool} className="h-3.5 w-3.5" />
+                <span className="truncate">{c.sender}: {c.preview}</span>
               </li>
             ))}
           </ul>
@@ -84,7 +86,8 @@ function BlocksPage() {
             placeholder="Block name"
             className="mt-4 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
           />
-          <div className="mt-3 flex gap-2">
+          <p className="mt-4 text-xs text-muted-foreground">Priority</p>
+          <div className="mt-1.5 flex gap-2">
             {(["High", "Normal"] as Priority[]).map((p) => (
               <button
                 key={p}
@@ -98,22 +101,54 @@ function BlocksPage() {
               </button>
             ))}
           </div>
-          <input
-            value={link}
-            onChange={(e) => setLink(e.target.value)}
-            placeholder="Add context, paste a link"
-            className="mt-3 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
-          />
+          <p className="mt-4 text-xs text-muted-foreground">Context</p>
+          <div className="mt-1.5 space-y-2">
+            {links.map((value, i) => {
+              const kind = value.trim() ? chipFromUrl(value.trim()).kind : "link";
+              return (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground">
+                    <ChipIcon kind={kind} />
+                  </span>
+                  <input
+                    value={value}
+                    onChange={(e) =>
+                      setLinks((ls) => ls.map((l, j) => (j === i ? e.target.value : l)))
+                    }
+                    placeholder="Paste a link to a Slack channel, doc, sheet, slides, email thread, or Jira ticket"
+                    className="flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+                  />
+                  {links.length > 1 && (
+                    <button
+                      type="button"
+                      aria-label="Remove link"
+                      onClick={() => setLinks((ls) => ls.filter((_, j) => j !== i))}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" strokeWidth={1.5} />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => setLinks((ls) => [...ls, ""])}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} /> Add another link
+            </button>
+          </div>
           <div className="mt-4 flex gap-2">
             <button
               type="button"
               className="btn-base btn-primary"
               disabled={!name.trim()}
               onClick={() => {
-                const id = app.createBlock(name.trim(), priority, []);
-                if (link.trim()) app.addChip(id, link.trim());
+                const chips = links.map((l) => l.trim()).filter(Boolean).map(chipFromUrl);
+                app.createBlock(name.trim(), priority, chips);
                 setName("");
-                setLink("");
+                setLinks([""]);
                 setPriority("Normal");
                 setCreating(false);
               }}
@@ -142,7 +177,15 @@ function BlocksPage() {
                   key={chip.id}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
                 >
-                  {chip.label}
+                  <a
+                    href={chipUrl(chip)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 hover:text-foreground"
+                  >
+                    <ChipIcon kind={chip.kind} />
+                    {chip.label}
+                  </a>
                   <button
                     type="button"
                     onClick={() => app.removeChip(b.id, chip.id)}

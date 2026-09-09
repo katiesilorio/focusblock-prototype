@@ -8,9 +8,14 @@ export type TourStep = {
 
 export const TOUR_STEPS: TourStep[] = [
   {
+    anchor: "nav-integrations",
+    title: "Integrations",
+    body: "FocusBlock reads from the tools you already use. Connect them here.",
+  },
+  {
     anchor: "left-panel",
     title: "Your Blocks",
-    body: "Each one is a project, and the number is how many things in it need you.",
+    body: "Blocks represent a group of context or a project. The number is how many items need your attention.",
   },
   {
     anchor: "start-button",
@@ -26,11 +31,6 @@ export const TOUR_STEPS: TourStep[] = [
     anchor: "right-panel",
     title: "Act from here",
     body: "Draft with AI writes the reply. You edit and send.",
-  },
-  {
-    anchor: "nav-integrations",
-    title: "Integrations",
-    body: "FocusBlock reads from the tools you already use. Connect them here.",
   },
 ];
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Cue } from "@/data/focusblock";
+import { cueUrl, type Cue } from "@/data/focusblock";
 import { ToolIcon, UrgencyFlag, Tag } from "@/components/bits";
 import { useApp } from "@/state/app-state";
 
@@ -16,15 +16,15 @@ export function CuePanel({
   unassignedMode?: boolean;
 }) {
   const app = useApp();
-  const [composerOpen, setComposerOpen] = useState(false);
   const [text, setText] = useState("");
   const [drafting, setDrafting] = useState(false);
   const [menu, setMenu] = useState<"none" | "snooze" | "reassign" | "status">("none");
+  const [newBlockName, setNewBlockName] = useState("");
 
   useEffect(() => {
-    setComposerOpen(false);
     setText("");
     setMenu("none");
+    setNewBlockName("");
   }, [cue.id]);
 
   const replyLabel =
@@ -36,12 +36,18 @@ export function CuePanel({
       className="flex h-full w-[420px] shrink-0 flex-col overflow-y-auto border-l border-border bg-surface"
     >
       <div className="flex items-start justify-between px-6 pt-6">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <a
+          href={cueUrl(cue)}
+          target="_blank"
+          rel="noreferrer"
+          title={`Open in ${cue.tool}`}
+          className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+        >
           <ToolIcon tool={cue.tool} />
           <span>{cue.tool}</span>
           <span>/</span>
-          <span className="truncate">{cue.origin}</span>
-        </div>
+          <span className="truncate underline underline-offset-2">{cue.origin}</span>
+        </a>
         <button type="button" onClick={onClose} className="btn-ghost -mr-1 rounded-md p-1">
           <X className="h-4 w-4" strokeWidth={1.5} />
           <span className="sr-only">Close</span>
@@ -69,14 +75,6 @@ export function CuePanel({
         )}
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="btn-base btn-primary"
-            onClick={() => setComposerOpen(true)}
-          >
-            {replyLabel}
-          </button>
-
           {cue.tool === "Jira" &&
             (cue.ticketKey === "OPS-207" ? (
               <button
@@ -168,11 +166,34 @@ export function CuePanel({
                 {b.name}
               </button>
             ))}
+            <form
+              className="mt-1 flex items-center gap-2 border-t border-border px-1 pt-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const n = newBlockName.trim();
+                if (!n) return;
+                const id = app.createBlock(n, "Normal", []);
+                app.reassign(cue.id, id);
+                setMenu("none");
+                onClose();
+              }}
+            >
+              <input
+                value={newBlockName}
+                onChange={(e) => setNewBlockName(e.target.value)}
+                placeholder="Or create a new Block"
+                className="flex-1 rounded-md border border-border bg-surface px-2 py-1.5 text-sm outline-none focus:border-accent"
+              />
+              <button type="submit" className="btn-base btn-quiet" disabled={!newBlockName.trim()}>
+                Create
+              </button>
+            </form>
           </div>
         )}
 
-        {composerOpen && (
-          <div className="mt-4">
+        <div className="mt-6">
+          <p className="text-xs text-muted-foreground">{replyLabel}</p>
+          <div className="mt-1.5">
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -202,14 +223,13 @@ export function CuePanel({
                 onClick={() => {
                   app.sendReply(cue.id, text);
                   setText("");
-                  setComposerOpen(false);
                 }}
               >
                 Send
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </aside>
   );

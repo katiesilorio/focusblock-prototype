@@ -40,7 +40,11 @@ function FocusPage() {
   const [selectedCueId, setSelectedCueId] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
-  const [endedInfo, setEndedInfo] = useState<{ name: string; minutes: number } | null>(null);
+  const [endedInfo, setEndedInfo] = useState<{
+    name: string;
+    minutes: number;
+    counters: typeof app.counters;
+  } | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [tourStep, setTourStep] = useState<number | null>(null);
 
@@ -78,8 +82,10 @@ function FocusPage() {
   function endSession() {
     if (!app.session) return;
     const block = app.blocks.find((b) => b.id === app.session!.blockId);
-    setEndedInfo({ name: block?.name ?? "", minutes: app.session.minutes });
+    // Snapshot what was done, then clear the counters for the next session.
+    setEndedInfo({ name: block?.name ?? "", minutes: app.session.minutes, counters: app.counters });
     app.endSession();
+    app.resetCounters();
     setEndOpen(true);
   }
 
@@ -108,6 +114,19 @@ function FocusPage() {
         data-tour="left-panel"
         className="flex w-64 shrink-0 flex-col border-r border-border bg-surface px-4 py-6"
       >
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedBlockId(null);
+            setUnassignedOpen(false);
+            setSelectedCueId(null);
+          }}
+          className={`mb-5 flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm ${
+            !selectedBlockId && !unassignedOpen ? "bg-accent-soft text-foreground" : "hover:bg-muted"
+          }`}
+        >
+          Home
+        </button>
         <p className="px-2 text-xs uppercase tracking-wide text-muted-foreground">Blocks</p>
         <ul className="mt-3 space-y-0.5">
           {app.blocks.map((b) => {
@@ -309,7 +328,7 @@ function FocusPage() {
         <SessionEndDialog
           blockName={endedInfo.name}
           minutes={endedInfo.minutes}
-          counters={app.counters}
+          counters={endedInfo.counters}
           onAnother={() => {
             setEndOpen(false);
             setStartOpen(true);

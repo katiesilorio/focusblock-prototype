@@ -62,15 +62,19 @@ type Ctx = State & {
 
 const AppContext = createContext<Ctx | null>(null);
 
-function chipFromUrl(url: string): ContextChip {
+export function chipFromUrl(url: string): ContextChip {
   const v = url.toLowerCase();
   const id = `chip-${Math.random().toString(36).slice(2, 9)}`;
-  if (v.includes("slack")) return { id, kind: "slack", label: url.replace(/^https?:\/\//, "") };
-  if (v.includes("docs.google")) return { id, kind: "doc", label: url.replace(/^https?:\/\//, "") };
-  if (v.includes("atlassian") || v.includes("jira"))
-    return { id, kind: "jira", label: url.replace(/^https?:\/\//, "") };
-  if (v.includes("mail")) return { id, kind: "email", label: url.replace(/^https?:\/\//, "") };
-  return { id, kind: "link", label: url.replace(/^https?:\/\//, "") };
+  const label = url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const href = url.startsWith("http") ? url : `https://${url}`;
+  const base = { id, label, url: href };
+  if (v.includes("slack")) return { ...base, kind: "slack" };
+  if (v.includes("/spreadsheets") || v.includes("sheets.google")) return { ...base, kind: "sheet" };
+  if (v.includes("/presentation") || v.includes("slides.google")) return { ...base, kind: "slide" };
+  if (v.includes("docs.google") || v.includes("drive.google")) return { ...base, kind: "doc" };
+  if (v.includes("atlassian") || v.includes("jira")) return { ...base, kind: "jira" };
+  if (v.includes("mail") || v.includes("outlook")) return { ...base, kind: "email" };
+  return { ...base, kind: "link" };
 }
 
 function countWords(text: string) {
@@ -98,8 +102,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       counters,
       createBlock(name, priority, chips) {
         const id = `block-${Math.random().toString(36).slice(2, 8)}`;
+        // Newest Block goes to the top of the list.
         setBlocks((prev) => [
-          ...prev,
           {
             id,
             name,
@@ -111,6 +115,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             summaryAfterUnblock:
               "This Block is new, so FocusBlock has not seen enough context to summarize it yet. Anything you assign here will show up in Action required.",
           },
+          ...prev,
         ]);
         return id;
       },
@@ -129,7 +134,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       acceptSuggestion(name) {
         const id = `block-doa`;
         setBlocks((prev) => [
-          ...prev,
           {
             id,
             name: name || SUGGESTED_BLOCK.name,
@@ -145,6 +149,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             summaryAfterUnblock:
               "The carrier conversation has an owner now. What is left is sizing the manual claim intake and deciding whether packaging changes as well.",
           },
+          ...prev,
         ]);
         setCues((prev) =>
           prev.map((c) => (SUGGESTED_BLOCK.cueIds.includes(c.id) ? { ...c, blockId: id } : c)),
@@ -160,7 +165,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         );
       },
       startSession(blockId, minutes) {
-        setCounters(emptyCounters);
+        // Counters keep whatever was done since the last session ended, so ending early still shows it.
         setSession({ blockId, minutes, startedAt: Date.now() });
       },
       endSession() {
