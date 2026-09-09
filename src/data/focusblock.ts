@@ -97,7 +97,7 @@ export const initialBlocks: Block[] = [
       { id: "s2", kind: "slack", label: "#catalog" },
     ],
     summary:
-      "The catalog plan is close to locked, but the photography budget line is still open and Jules will not sign off without it. Priya has the shot list ready and is waiting on your ordering. Everything else in this Block is reading, not doing.",
+      "The catalog plan is close to locked, but the photography budget line is still open and Jules will not sign off without it. Priya has the shot list ready and is waiting on your ordering. Everything else in this Block is reading.",
     summaryAfterUnblock:
       "The budget question has an answer, so Jules can sign off. Priya's shot list ordering is the remaining piece, and the rest of the thread is context you can skim.",
   },
@@ -111,7 +111,7 @@ export const initialBlocks: Block[] = [
       { id: "v2", kind: "jira", label: "OPS-233" },
     ],
     summary:
-      "Summit Textiles wants a renewal answer by Friday at the rate they proposed. Jules has not finished the margin check, so the useful move is buying time rather than answering the rate. The linked ticket is only there to track the signature step.",
+      "Summit Textiles wants a renewal answer by Friday at the rate they proposed. Jules has not finished the margin check, so the useful move is to buy time on the rate. The linked ticket is only there to track the signature step.",
     summaryAfterUnblock:
       "The Friday deadline has a response on it, so the renewal is no longer sitting on you. What is left is the signature tracking ticket and Jules's margin note when it lands.",
   },
@@ -166,7 +166,7 @@ export const initialCues: Cue[] = [
     preview: "Updated the error-state section with the final copy and spacing.",
     body: "I updated the error-state section. The inline message now sits under the field rather than above it, and the copy is final. No changes needed from you, just flagging it so the build matches.",
     urgency: "FYI",
-    reason: "Informational; no question asked of you.",
+    reason: "Informational. No question asked of you.",
     openActionItem: false,
     draft:
       "Thanks Priya, the under-field placement matches what Theo is building, so we are aligned for the staging push.",
@@ -201,7 +201,7 @@ export const initialCues: Cue[] = [
     preview: "Automated run found a duplicate error toast on the retry path.",
     body: "Run 3411 on branch checkout-address-form: the card error toast renders twice when the shopper retries within five seconds. Screenshot attached in the run log.",
     urgency: "FYI",
-    reason: "An automated report with no ask; the owning engineer is already assigned.",
+    reason: "An automated report with no ask. The owning engineer is already assigned.",
     openActionItem: false,
     draft:
       "Noting this for the retry cleanup pass. It does not block the address form change going to staging today.",
@@ -269,7 +269,7 @@ export const initialCues: Cue[] = [
     reason: "Useful background from support with no request attached.",
     openActionItem: false,
     draft:
-      "Helpful, thank you. I will look at coupon placement in the redesign pass rather than as a separate change.",
+      "Helpful, thank you. I will look at coupon placement in the redesign pass, as one change.",
   },
 
   // ---------- Returns pipeline ----------
@@ -337,7 +337,7 @@ export const initialCues: Cue[] = [
     preview: "Dock photo of the parcels waiting on the scanner decision.",
     body: "Photo of the dock this morning. This is what 300 parcels looks like. No action from you here beyond the email I sent.",
     urgency: "FYI",
-    reason: "Context for the email you already have; the ask lives there.",
+    reason: "Context for the email you already have. The ask lives there.",
     openActionItem: false,
     draft: "Seen. Answering the rollback question in your email now.",
   },
@@ -435,7 +435,7 @@ export const initialCues: Cue[] = [
     preview: "Added the cover concepts to the plan for reading.",
     body: "Three cover concepts are in the plan now with notes on each. Read when you have a minute, I am not asking for a decision yet.",
     urgency: "FYI",
-    reason: "Shared for reading; the decision comes later.",
+    reason: "Shared for reading. The decision comes later.",
     openActionItem: false,
     draft: "Read them, the second concept is the strongest to me. I will comment properly when you ask for the call.",
   },
@@ -490,7 +490,7 @@ export const initialCues: Cue[] = [
     openActionItem: true,
     ask: "Hold the vendor reply until Jules finishes the margin review.",
     draft:
-      "Understood, I will buy us time rather than answer the rate. I am asking Rowan for two more weeks and for the volume-tier sheet so your second pass has better inputs.",
+      "Understood, I will buy us time on the rate. I am asking Rowan for two more weeks and for the volume-tier sheet so your second pass has better inputs.",
   },
 
   // ---------- Unassigned ----------
@@ -509,7 +509,7 @@ export const initialCues: Cue[] = [
     openActionItem: true,
     ask: "Decide who owns the damaged-on-arrival pattern.",
     draft:
-      "Thanks Dana. Let us treat this as its own workstream rather than case by case, and start by pulling the claims from that route for the last month.",
+      "Thanks Dana. Let us treat this as its own workstream and start by pulling the claims from that route for the last month.",
   },
   {
     id: "cue-24",
@@ -545,7 +545,7 @@ export const initialCues: Cue[] = [
     openActionItem: true,
     ask: "Prioritize or defer automating claim intake.",
     draft:
-      "Let us size this properly rather than defer it. Log how long the re-keying takes for a week and we will decide with a real number.",
+      "Let us size this properly. Log how long the re-keying takes for a week and we will decide with a real number.",
   },
   {
     id: "cue-26",

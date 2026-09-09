@@ -25,7 +25,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     anchor: "right-panel",
     title: "Act from here",
-    body: "Draft with AI writes the reply; you edit and send.",
+    body: "Draft with AI writes the reply. You edit and send.",
   },
   {
     anchor: "nav-integrations",

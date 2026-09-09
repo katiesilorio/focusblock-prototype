@@ -16,13 +16,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Work through the messages, emails, tickets, and document comments that actually need you, in timed focus sessions.",
+          "Work through the messages, emails, tickets, and document comments that need you, in timed focus sessions.",
       },
       { property: "og:title", content: "Focus, FocusBlock prototype" },
       {
         property: "og:description",
         content:
-          "Work through the messages, emails, tickets, and document comments that actually need you, in timed focus sessions.",
+          "Work through the messages, emails, tickets, and document comments that need you, in timed focus sessions.",
       },
     ],
   }),

@@ -36,38 +36,52 @@ function AboutPage() {
 
       <Section title="What FocusBlock is">
         An AI attention layer for teams that work asynchronously. It reads the messages, emails,
-        tickets, and document comments a person already receives, groups them into the projects the
-        person is working on, decides which ones actually need their attention, and lets them work
-        through those in timed sessions.
+        tickets, and document comments a person already gets, groups them into the projects that
+        person is working on (Blocks), decides which ones need their attention, and gives them a
+        timed session to work through those. The belief behind it: a work tool should be as easy to
+        use as the apps people use every day. No tutorial needed and what you have to do just makes
+        sense.
       </Section>
 
       <Section title="What this prototype shows">
-        Blocks and their context, the AI's urgency read on every cue with its reason, timed
-        FocusBlock sessions with an AI summary, acting on a cue with an AI-drafted reply or comment,
-        the session-end accomplishments, block configuration with AI-suggested Blocks, and an
-        integrations screen.
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Blocks, and the context that flows into each one</li>
+          <li>The AI's urgency call on every cue, with the reason on hover</li>
+          <li>Timed FocusBlock sessions with an AI summary of what is going on</li>
+          <li>Acting on a cue from the right panel, with an AI-drafted reply or comment</li>
+          <li>What you got done, shown when the session ends</li>
+          <li>Block configuration, including a Block the AI suggests from unassigned context</li>
+          <li>An Integrations screen for Slack, Gmail, Jira, and Google Drive</li>
+        </ul>
       </Section>
 
       <Section title="What is simulated">
-        Every integration, every AI summary, draft, and urgency call, every message and ticket. The
-        company, people, and content are invented.
+        All of it. Every integration, every AI summary, draft, and urgency call, and every message
+        and ticket. The company, the people, and the content are invented.
       </Section>
 
       <Section title="What is out">
-        Real connections to Slack, Gmail, Jira, or Google Drive. Real AI. Saving anything between
-        visits beyond remembering the tour. Mobile: optimized for desktop, mobile coming soon.
+        <ul className="list-disc space-y-1 pl-5">
+          <li>Real connections to Slack, Gmail, Jira, or Google Drive</li>
+          <li>Real AI calls</li>
+          <li>Saving anything between visits, beyond remembering the tour</li>
+          <li>Mobile. Optimized for desktop, mobile coming soon.</li>
+        </ul>
       </Section>
 
-      <Section title="Status">Build in progress. This prototype is the interface; the connected, working version is being built separately.</Section>
+      <Section title="Status">
+        Build in progress. This prototype is the interface, built to work out what a person should
+        see and control at each step. The working version is being built separately.
+      </Section>
 
       <Section title="What is next">
-        Connecting a real Slack workspace and Jira project as the first live integrations, and
-        replacing the scripted summaries and drafts with live AI calls.
+        Connect a real Slack workspace and a real Jira project as the first live integrations, then
+        replace the scripted summaries and drafts with live AI calls.
       </Section>
 
       <p className="mt-8 text-sm leading-relaxed text-muted-foreground">
-        This is a prototype built by Katie Silorio to test a direction. There are no real users and
-        no real data.
+        A prototype built by Katie Silorio to test a direction. No real users, no real data, no real
+        messages sent.
       </p>
 
       <button
