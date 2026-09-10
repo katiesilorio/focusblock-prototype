@@ -116,7 +116,7 @@ function FocusPage() {
   )[0]?.id;
 
   return (
-    <div className="flex h-[calc(100vh-8.5rem)]">
+    <div className="relative flex h-[calc(100vh-8.5rem)]">
       {/* Left panel */}
       <aside
         data-tour="left-panel"

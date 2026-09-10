@@ -15,6 +15,7 @@ export function CueList({
   onSelect,
   firstFlagRef,
   quickAssign,
+  suggested,
 }: {
   cues: Cue[];
   tab: TabName;

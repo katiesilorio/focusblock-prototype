@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { cueUrl, type Cue } from "@/data/focusblock";
 import { ToolIcon, UrgencyFlag, Tag } from "@/components/bits";
 import { useApp } from "@/state/app-state";
@@ -33,7 +33,7 @@ export function CuePanel({
   return (
     <aside
       data-tour="right-panel"
-      className="flex h-full w-[420px] shrink-0 flex-col overflow-y-auto border-l border-border bg-surface"
+      className="absolute inset-y-0 right-0 z-20 flex w-[440px] flex-col overflow-y-auto border-l border-border bg-surface shadow-float"
     >
       <div className="flex items-start justify-between px-6 pt-6">
         <a
@@ -61,8 +61,17 @@ export function CuePanel({
           {cue.ticketStatus && <Tag>{cue.ticketStatus}</Tag>}
         </div>
 
-        <div className="mt-3 flex items-start gap-2">
-          <UrgencyFlag urgency={cue.urgency} reason={cue.reason} withLabel />
+        <div className="mt-3 flex items-center gap-2">
+          {cue.resolved ? (
+            <Tag>Resolved</Tag>
+          ) : cue.snoozed ? (
+            <Tag>Snoozed</Tag>
+          ) : (
+            <UrgencyFlag urgency={cue.urgency} reason={cue.reason} withLabel />
+          )}
+          {(cue.resolved || cue.snoozed) && (
+            <span className="text-xs text-muted-foreground">was {cue.urgency}</span>
+          )}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">{cue.reason}</p>
 
@@ -80,6 +89,7 @@ export function CuePanel({
               <button
                 type="button"
                 className="btn-base btn-quiet"
+                disabled={cue.resolved}
                 onClick={() => app.moveToUat(cue.id)}
               >
                 Move to UAT
@@ -88,21 +98,28 @@ export function CuePanel({
               <button
                 type="button"
                 className="btn-base btn-quiet"
+                disabled={cue.resolved}
                 onClick={() => setMenu(menu === "status" ? "none" : "status")}
               >
                 Change status
               </button>
             ))}
 
-          <button type="button" className="btn-base btn-quiet" onClick={() => app.markDone(cue.id)}>
-            Mark done
+          <button
+            type="button"
+            className="btn-base btn-quiet"
+            disabled={cue.resolved}
+            onClick={() => app.markDone(cue.id)}
+          >
+            {cue.resolved ? "Done" : "Mark done"}
           </button>
           <button
             type="button"
             className="btn-base btn-quiet"
+            disabled={cue.resolved || cue.snoozed}
             onClick={() => setMenu(menu === "snooze" ? "none" : "snooze")}
           >
-            Snooze
+            {cue.snoozed ? "Snoozed" : "Snooze"}
           </button>
           <button
             type="button"
@@ -140,7 +157,6 @@ export function CuePanel({
                 onClick={() => {
                   app.snooze(cue.id, s.toLowerCase());
                   setMenu("none");
-                  onClose();
                 }}
                 className="block w-full rounded-md px-3 py-1.5 text-left text-sm hover:bg-muted"
               >
@@ -214,6 +230,7 @@ export function CuePanel({
                   }, 600);
                 }}
               >
+                <Sparkles className="mr-1.5 inline h-3.5 w-3.5" strokeWidth={1.5} />
                 {drafting ? "Drafting" : "Draft with AI"}
               </button>
               <button
