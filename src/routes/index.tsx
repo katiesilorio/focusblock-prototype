@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Sparkles, X } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { ChipIcon, ToolIcon } from "@/components/bits";
 import { useEffect, useMemo, useState } from "react";
-import { useApp } from "@/state/app-state";
+import { chipFromUrl, useApp } from "@/state/app-state";
 import { CueList } from "@/components/CueList";
 import { CuePanel } from "@/components/CuePanel";
 import { StartDialog } from "@/components/StartDialog";
 import { SessionEndDialog } from "@/components/SessionEndDialog";
 import { Tour, TOUR_STEPS } from "@/components/Tour";
 import { tabOf, sortCues, type TabName } from "@/lib/cues";
-import { chipUrl, SUGGESTED_BLOCK, type SortOption } from "@/data/focusblock";
+import { SUGGESTED_BLOCK, type SortOption } from "@/data/focusblock";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,7 +42,7 @@ function FocusPage() {
   const [selectedCueId, setSelectedCueId] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
   const [startFixedBlockId, setStartFixedBlockId] = useState<string | null>(null);
-  const [contextDraft, setContextDraft] = useState("");
+  const [addContextOpen, setAddContextOpen] = useState(false);
   const [endOpen, setEndOpen] = useState(false);
   const [endedInfo, setEndedInfo] = useState<{
     name: string;
@@ -336,6 +336,14 @@ function FocusPage() {
                   Start a FocusBlock on this Block
                 </button>
               )}
+              <button
+                type="button"
+                className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-4 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                onClick={() => setAddContextOpen(true)}
+              >
+                <Plus className="h-3 w-3" strokeWidth={2} />
+                Add context
+              </button>
             </div>
 
             <div className="card-soft mt-5 p-5">
@@ -348,58 +356,6 @@ function FocusPage() {
               </p>
             </div>
 
-            {/* Context this Block reads from, plus a place to add more without leaving the Focus view. */}
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground">Context</span>
-              {activeBlock.chips.map((chip) => (
-                <span
-                  key={chip.id}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                >
-                  <a
-                    href={chipUrl(chip)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 hover:text-foreground"
-                  >
-                    <ChipIcon kind={chip.kind} />
-                    {chip.label}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => app.removeChip(activeBlock.id, chip.id)}
-                    className="hover:text-foreground"
-                    aria-label={`Remove ${chip.label}`}
-                  >
-                    <X className="h-3 w-3" strokeWidth={2} />
-                  </button>
-                </span>
-              ))}
-              <form
-                className="flex items-center gap-1.5"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const value = contextDraft.trim();
-                  if (!value) return;
-                  app.addChip(activeBlock.id, value);
-                  setContextDraft("");
-                }}
-              >
-                <input
-                  value={contextDraft}
-                  onChange={(e) => setContextDraft(e.target.value)}
-                  placeholder="Add context, paste a link"
-                  className="w-56 rounded-full border border-border bg-surface px-3 py-1 text-xs outline-none focus:border-accent"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
-                >
-                  <Plus className="h-3 w-3" strokeWidth={2} />
-                  Add
-                </button>
-              </form>
-            </div>
 
             <div className="mt-7" data-tour="cue-list">
               <CueList
@@ -427,6 +383,17 @@ function FocusPage() {
           cue={selectedCue}
           unassignedMode={unassignedOpen}
           onClose={() => setSelectedCueId(null)}
+        />
+      )}
+
+      {addContextOpen && activeBlock && (
+        <AddContextDialog
+          blockName={activeBlock.name}
+          onClose={() => setAddContextOpen(false)}
+          onAdd={(urls) => {
+            urls.forEach((u) => app.addChip(activeBlock.id, u));
+            setAddContextOpen(false);
+          }}
         />
       )}
 
@@ -480,6 +447,68 @@ function FocusPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+/** Paste one or more links, one per line. Each shows the tool icon FocusBlock detected for it. */
+function AddContextDialog({
+  blockName,
+  onClose,
+  onAdd,
+}: {
+  blockName: string;
+  onClose: () => void;
+  onAdd: (urls: string[]) => void;
+}) {
+  const [text, setText] = useState("");
+  const urls = text
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/20 px-6">
+      <div className="w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-float">
+        <h2 className="text-base font-medium">Add context to {blockName}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Paste one or more links, one per line. Slack channels, docs, sheets, decks, tickets, or email threads.
+        </p>
+        <textarea
+          autoFocus
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={4}
+          placeholder="https://"
+          className="mt-4 w-full resize-none rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+        {urls.length > 0 && (
+          <ul className="mt-3 space-y-1.5">
+            {urls.map((u, i) => {
+              const chip = chipFromUrl(u);
+              return (
+                <li key={`${u}-${i}`} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <ChipIcon kind={chip.kind} />
+                  <span className="truncate">{chip.label}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" className="btn-base btn-ghost" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn-base btn-primary"
+            disabled={urls.length === 0}
+            onClick={() => onAdd(urls)}
+          >
+            Add {urls.length > 1 ? `${urls.length} links` : "context"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
