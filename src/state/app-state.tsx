@@ -9,6 +9,7 @@ import {
   type Cue,
   type Integration,
   type Priority,
+  PRIORITY_ORDER,
 } from "@/data/focusblock";
 
 export type Counters = {
@@ -53,7 +54,7 @@ type Ctx = State & {
   endSession: () => void;
   resetCounters: () => void;
   markDone: (cueId: string) => void;
-  snooze: (cueId: string) => void;
+  snooze: (cueId: string, until?: string) => void;
   reassign: (cueId: string, blockId: string) => void;
   sendReply: (cueId: string, text: string) => void;
   moveToUat: (cueId: string) => void;
@@ -92,9 +93,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(() => {
     const patchCue = (cueId: string, patch: Partial<Cue>) =>
       setCues((prev) => prev.map((c) => (c.id === cueId ? { ...c, ...patch } : c)));
+    const now = () =>
+      new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    const log = (cueId: string, label: string, detail?: string) =>
+      setCues((prev) =>
+        prev.map((c) =>
+          c.id === cueId
+            ? { ...c, history: [...(c.history ?? []), { at: now(), label, ...(detail ? { detail } : {}) }] }
+            : c,
+        ),
+      );
+    const sortByPriority = (list: Block[]) =>
+      [...list].sort((a, b) => PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority));
 
     return {
-      blocks,
+      blocks: sortByPriority(blocks),
       cues,
       integrations,
       suggestionState,
@@ -176,17 +189,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       },
       markDone(cueId) {
         patchCue(cueId, { resolved: true, snoozed: false });
+        log(cueId, "Marked done");
         setCounters((c) => ({ ...c, resolved: c.resolved + 1 }));
       },
-      snooze(cueId) {
+      snooze(cueId, until) {
         patchCue(cueId, { snoozed: true });
+        log(cueId, `Snoozed ${until ?? ""}`.trim());
       },
       reassign(cueId, blockId) {
         patchCue(cueId, { blockId });
+        const name = blocks.find((b) => b.id === blockId)?.name ?? "a new Block";
+        log(cueId, `Moved to ${name}`);
       },
       sendReply(cueId, text) {
         const cue = cues.find((c) => c.id === cueId);
         patchCue(cueId, { replied: true });
+        log(
+          cueId,
+          cue && (cue.tool === "Jira" || cue.tool === "Google Drive") ? "Comment posted" : "Reply sent",
+          text,
+        );
         setCounters((c) => ({
           ...c,
           replies: cue && cue.tool !== "Jira" && cue.tool !== "Google Drive" ? c.replies + 1 : c.replies,
@@ -198,6 +220,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       moveToUat(cueId) {
         const cue = cues.find((c) => c.id === cueId);
         patchCue(cueId, { ticketStatus: "UAT", resolved: true });
+        log(cueId, "Moved to UAT");
         setCounters((c) => ({
           ...c,
           resolved: c.resolved + 1,
@@ -207,6 +230,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       changeStatus(cueId, status) {
         const cue = cues.find((c) => c.id === cueId);
         patchCue(cueId, { ticketStatus: status });
+        log(cueId, `Status changed to ${status}`);
         setCounters((c) => ({
           ...c,
           ticketsProgressed: [...c.ticketsProgressed, `${cue?.ticketKey ?? "Ticket"} to ${status}`],

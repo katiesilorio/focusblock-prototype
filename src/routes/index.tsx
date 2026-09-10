@@ -151,7 +151,7 @@ function FocusPage() {
                 >
                   <span
                     className={`h-1.5 w-1.5 rounded-full ${
-                      b.priority === "High" ? "bg-foreground" : "bg-border"
+                      b.priority === "High" ? "bg-foreground" : b.priority === "Normal" ? "bg-muted-foreground" : "bg-border"
                     }`}
                     title={`${b.priority} priority`}
                   />
@@ -243,6 +243,13 @@ function FocusPage() {
                 selectedId={selectedCueId}
                 onSelect={setSelectedCueId}
                 firstFlagRef={firstFlagId}
+                quickAssign={{
+                  blocks: app.blocks.map((b) => ({ id: b.id, name: b.name })),
+                  onAssign: (cueId, blockId) => {
+                    app.reassign(cueId, blockId);
+                    if (selectedCueId === cueId) setSelectedCueId(null);
+                  },
+                }}
               />
             </div>
           </div>

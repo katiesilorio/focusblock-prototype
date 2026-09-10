@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { CircleHelp } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 const nav = [
@@ -37,8 +38,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="sticky top-0 z-30">
-      <div className="border-b border-border bg-muted/60 px-6 py-2 text-center text-xs text-muted-foreground">
+      <div className="sticky top-0 z-30 bg-surface">
+      <div className="border-b border-border bg-muted px-6 py-2 text-center text-xs text-muted-foreground">
         Prototype. Everything here is simulated: the team, the messages, the tickets, and the AI.
         Optimized for desktop, mobile coming soon.{" "}
         <Link to="/about" className="underline underline-offset-2 hover:text-foreground">
@@ -62,6 +63,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               {item.label}
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={() => {
+              window.localStorage.removeItem("focusblock-tour-seen");
+              window.location.href = "/";
+            }}
+            className="ml-2 flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <CircleHelp className="h-4 w-4" strokeWidth={1.5} />
+            Take the tour
+          </button>
         </nav>
       </header>
       </div>

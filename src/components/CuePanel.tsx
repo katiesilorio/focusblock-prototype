@@ -138,7 +138,7 @@ export function CuePanel({
                 key={s}
                 type="button"
                 onClick={() => {
-                  app.snooze(cue.id);
+                  app.snooze(cue.id, s.toLowerCase());
                   setMenu("none");
                   onClose();
                 }}
@@ -230,6 +230,25 @@ export function CuePanel({
             </div>
           </div>
         </div>
+
+        {cue.history && cue.history.length > 0 && (
+          <div className="mt-6 border-t border-border pt-4">
+            <p className="text-xs text-muted-foreground">Your activity on this</p>
+            <ul className="mt-2 space-y-2">
+              {cue.history.map((h, i) => (
+                <li key={i} className="text-xs">
+                  <span className="text-muted-foreground">{h.at}</span>{" "}
+                  <span className="font-medium">{h.label}</span>
+                  {h.detail && (
+                    <p className="mt-0.5 whitespace-pre-line rounded-md bg-accent-soft px-2.5 py-1.5 text-muted-foreground">
+                      {h.detail}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </aside>
   );

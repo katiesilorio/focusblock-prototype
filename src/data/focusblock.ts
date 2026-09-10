@@ -3,7 +3,8 @@
 
 export type Tool = "Slack" | "Gmail" | "Jira" | "Google Drive";
 export type Urgency = "Blocking" | "Action needed" | "FYI";
-export type Priority = "High" | "Normal";
+export type Priority = "High" | "Normal" | "Low";
+export const PRIORITY_ORDER: Priority[] = ["High", "Normal", "Low"];
 
 export type ChipKind = "slack" | "doc" | "sheet" | "slide" | "jira" | "email" | "link";
 
@@ -62,6 +63,14 @@ export type Cue = {
   resolved?: boolean;
   replied?: boolean;
   snoozed?: boolean;
+  /** What the person has done on this cue, newest last. */
+  history?: CueActivity[];
+};
+
+export type CueActivity = {
+  at: string;
+  label: string;
+  detail?: string;
 };
 
 export type Block = {
@@ -607,11 +616,77 @@ export const initialCues: Cue[] = [
     openActionItem: false,
     draft: "Yes please, put me down for the twenty minutes and I will walk through the checkout redesign.",
   },
+  {
+    id: "cue-28",
+    blockId: null,
+    tool: "Gmail",
+    origin: "Re: Carrier pickup window change",
+    sender: "Sam Castillo",
+    time: "Today, 7:50 AM",
+    minutesAgo: 272,
+    preview: "The carrier moved our afternoon pickup to 2 PM starting next week.",
+    body: "Heads up, the carrier moved our afternoon pickup from 4 PM to 2 PM starting next week. Warehouse A can make it. Warehouse B will need the packing cutoff moved earlier, which affects same-day returns processing. Do you want me to change the cutoff or push back on the carrier?",
+    urgency: "Action needed",
+    reason: "Sam is asking you to choose between two options with a deadline next week.",
+    openActionItem: true,
+    ask: "Choose between moving the packing cutoff or pushing back on the carrier.",
+    draft:
+      "Move the cutoff for warehouse B for now so we do not miss pickups, and send me the carrier's contact. I will ask whether 3 PM is possible before we make the change permanent.",
+  },
+  {
+    id: "cue-29",
+    blockId: null,
+    tool: "Jira",
+    origin: "SHOP-510 Gift card balance shows stale value after redemption",
+    ticketKey: "SHOP-510",
+    ticketStatus: "To Do",
+    sender: "qa-bot",
+    time: "Today, 6:15 AM",
+    minutesAgo: 367,
+    preview: "New bug filed by QA automation, no owner assigned yet.",
+    body: "Automated regression found the gift card balance on the account page showing the pre-redemption value for up to ten minutes after a redemption. Severity medium. No owner assigned.",
+    urgency: "Action needed",
+    reason: "A new ticket with no owner will sit until someone triages it.",
+    openActionItem: true,
+    ask: "Assign an owner or move the ticket to a Block.",
+    draft: "Assigning to the checkout team for triage. Please confirm whether this is a caching issue or a data issue before estimating.",
+  },
+  {
+    id: "cue-30",
+    blockId: null,
+    tool: "Slack",
+    origin: "#general",
+    sender: "Jules Moreau",
+    time: "Yesterday, 4:05 PM",
+    minutesAgo: 1300,
+    preview: "Q3 close is next Friday. Send any outstanding vendor invoices to me by Wednesday.",
+    body: "Q3 close is next Friday. If you have any outstanding vendor invoices, send them to me by Wednesday so they land in the right quarter.",
+    urgency: "FYI",
+    reason: "A company-wide reminder. The vendor invoice for your Block is already with Jules.",
+    openActionItem: false,
+    draft: "Thanks Jules, the Summit Textiles invoice is already with you.",
+  },
+  {
+    id: "cue-31",
+    blockId: null,
+    tool: "Google Drive",
+    origin: "Returns dashboard, Q3",
+    sender: "Dana Whitfield",
+    time: "Yesterday, 10:20 AM",
+    minutesAgo: 1645,
+    preview: "Comment on the returns dashboard sheet asking whether refund time should include weekends.",
+    body: "Should the refund time metric include weekends? Right now it does, which makes Monday look worse than it is. I can change the formula if you want business days only.",
+    urgency: "Action needed",
+    reason: "Dana is asking for a decision on how a metric is defined.",
+    openActionItem: true,
+    ask: "Decide whether refund time counts business days or calendar days.",
+    draft: "Business days only, and add a note on the sheet saying so. Weekends make the trend read wrong.",
+  },
 ];
 
 export const SUGGESTED_BLOCK = {
   name: "Damaged-on-arrival claims",
-  description: "Based on 3 unassigned items from Slack, Gmail, and Jira.",
+  description: "Based on 3 unassigned items from Slack, Gmail, and Jira, all about the same carrier route.",
   cueIds: ["cue-23", "cue-24", "cue-25"],
 };
 

@@ -88,7 +88,7 @@ function BlocksPage() {
           />
           <p className="mt-4 text-xs text-muted-foreground">Priority</p>
           <div className="mt-1.5 flex gap-2">
-            {(["High", "Normal"] as Priority[]).map((p) => (
+            {(["High", "Normal", "Low"] as Priority[]).map((p) => (
               <button
                 key={p}
                 type="button"

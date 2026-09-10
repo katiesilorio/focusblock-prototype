@@ -1,24 +1,20 @@
-import { FileText, Hash, Mail, SquareKanban, CircleDot, Table, Presentation, Link as LinkIcon } from "lucide-react";
+import { FileText, Hash, Mail, Ticket, CircleDot, Table, Presentation, Link as LinkIcon } from "lucide-react";
 import type { ChipKind, Tool, Urgency } from "@/data/focusblock";
 
 export function ToolIcon({ tool, className = "h-4 w-4" }: { tool: Tool; className?: string }) {
   const props = { className: `${className} text-muted-foreground`, strokeWidth: 1.5 };
-  if (tool === "Slack") return <Hash {...props} />;
-  if (tool === "Gmail") return <Mail {...props} />;
-  if (tool === "Jira") return <SquareKanban {...props} />;
-  return <FileText {...props} />;
+  const icon =
+    tool === "Slack" ? <Hash {...props} /> : tool === "Gmail" ? <Mail {...props} /> : tool === "Jira" ? <Ticket {...props} /> : <FileText {...props} />;
+  return <span title={tool} className="inline-flex">{icon}</span>;
 }
 
 /** Icon for a context chip, by the kind of link it is. */
 export function ChipIcon({ kind, className = "h-3.5 w-3.5" }: { kind: ChipKind; className?: string }) {
   const props = { className, strokeWidth: 1.5 };
-  if (kind === "slack") return <Hash {...props} />;
-  if (kind === "doc") return <FileText {...props} />;
-  if (kind === "sheet") return <Table {...props} />;
-  if (kind === "slide") return <Presentation {...props} />;
-  if (kind === "jira") return <SquareKanban {...props} />;
-  if (kind === "email") return <Mail {...props} />;
-  return <LinkIcon {...props} />;
+  const names: Record<ChipKind, string> = { slack: "Slack channel", doc: "Google Doc", sheet: "Google Sheet", slide: "Google Slides", jira: "Jira ticket", email: "Email thread", link: "Link" };
+  const icon =
+    kind === "slack" ? <Hash {...props} /> : kind === "doc" ? <FileText {...props} /> : kind === "sheet" ? <Table {...props} /> : kind === "slide" ? <Presentation {...props} /> : kind === "jira" ? <Ticket {...props} /> : kind === "email" ? <Mail {...props} /> : <LinkIcon {...props} />;
+  return <span title={names[kind]} className="inline-flex">{icon}</span>;
 }
 
 const urgencyColor: Record<Urgency, string> = {

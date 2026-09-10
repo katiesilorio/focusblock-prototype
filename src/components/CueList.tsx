@@ -13,6 +13,7 @@ export function CueList({
   selectedId,
   onSelect,
   firstFlagRef,
+  quickAssign,
 }: {
   cues: Cue[];
   tab: TabName;
@@ -22,6 +23,8 @@ export function CueList({
   selectedId: string | null;
   onSelect: (id: string) => void;
   firstFlagRef?: string | undefined;
+  /** When given, each row gets an inline "Assign to" select (used in the Unassigned view). */
+  quickAssign?: { blocks: { id: string; name: string }[]; onAssign: (cueId: string, blockId: string) => void };
 }) {
   const counts: Record<TabName, number> = {
     "Action required": 0,
@@ -112,6 +115,24 @@ export function CueList({
                 <UrgencyFlag urgency={cue.urgency} reason={cue.reason} />
               </span>
             </button>
+            {quickAssign && (
+              <div className="-mt-1 flex justify-end px-3 pb-2">
+                <select
+                  className="rounded-md border border-border bg-surface px-2 py-1 text-xs text-muted-foreground outline-none focus:border-accent"
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) quickAssign.onAssign(cue.id, e.target.value);
+                  }}
+                >
+                  <option value="">Assign to a Block</option>
+                  {quickAssign.blocks.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </li>
         ))}
       </ul>
