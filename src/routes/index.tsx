@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Sparkles } from "lucide-react";
-import { ToolIcon } from "@/components/bits";
+import { Plus, Sparkles, X } from "lucide-react";
+import { ChipIcon, ToolIcon } from "@/components/bits";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/state/app-state";
 import { CueList } from "@/components/CueList";
@@ -9,7 +9,7 @@ import { StartDialog } from "@/components/StartDialog";
 import { SessionEndDialog } from "@/components/SessionEndDialog";
 import { Tour, TOUR_STEPS } from "@/components/Tour";
 import { tabOf, sortCues, type TabName } from "@/lib/cues";
-import { SUGGESTED_BLOCK, type SortOption } from "@/data/focusblock";
+import { chipUrl, SUGGESTED_BLOCK, type SortOption } from "@/data/focusblock";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,6 +42,7 @@ function FocusPage() {
   const [selectedCueId, setSelectedCueId] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
   const [startFixedBlockId, setStartFixedBlockId] = useState<string | null>(null);
+  const [contextDraft, setContextDraft] = useState("");
   const [endOpen, setEndOpen] = useState(false);
   const [endedInfo, setEndedInfo] = useState<{
     name: string;
@@ -345,6 +346,59 @@ function FocusPage() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {blockingResolved ? activeBlock.summaryAfterUnblock : activeBlock.summary}
               </p>
+            </div>
+
+            {/* Context this Block reads from, plus a place to add more without leaving the Focus view. */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted-foreground">Context</span>
+              {activeBlock.chips.map((chip) => (
+                <span
+                  key={chip.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
+                >
+                  <a
+                    href={chipUrl(chip)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 hover:text-foreground"
+                  >
+                    <ChipIcon kind={chip.kind} />
+                    {chip.label}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => app.removeChip(activeBlock.id, chip.id)}
+                    className="hover:text-foreground"
+                    aria-label={`Remove ${chip.label}`}
+                  >
+                    <X className="h-3 w-3" strokeWidth={2} />
+                  </button>
+                </span>
+              ))}
+              <form
+                className="flex items-center gap-1.5"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const value = contextDraft.trim();
+                  if (!value) return;
+                  app.addChip(activeBlock.id, value);
+                  setContextDraft("");
+                }}
+              >
+                <input
+                  value={contextDraft}
+                  onChange={(e) => setContextDraft(e.target.value)}
+                  placeholder="Add context, paste a link"
+                  className="w-56 rounded-full border border-border bg-surface px-3 py-1 text-xs outline-none focus:border-accent"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Plus className="h-3 w-3" strokeWidth={2} />
+                  Add
+                </button>
+              </form>
             </div>
 
             <div className="mt-7" data-tour="cue-list">
