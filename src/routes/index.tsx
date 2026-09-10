@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
+import { ToolIcon } from "@/components/bits";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/state/app-state";
 import { CueList } from "@/components/CueList";
@@ -226,8 +227,23 @@ function FocusPage() {
             <h1 className="text-xl font-medium tracking-tight">Unassigned</h1>
             {app.suggestionState === "open" && (
               <div className="card-soft mt-5 p-5">
-                <p className="text-sm font-medium">Suggested Block: {SUGGESTED_BLOCK.name}</p>
+                <p className="flex items-center gap-1.5 text-sm font-medium">
+                  <Sparkles className="h-4 w-4" strokeWidth={1.5} />
+                  Suggested Block: {SUGGESTED_BLOCK.name}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">{SUGGESTED_BLOCK.description}</p>
+                <ul className="mt-3 divide-y divide-border rounded-lg border border-border">
+                  {app.cues
+                    .filter((c) => SUGGESTED_BLOCK.cueIds.includes(c.id))
+                    .map((c) => (
+                      <li key={c.id} className="flex items-center gap-3 px-3 py-2">
+                        <ToolIcon tool={c.tool} driveKind={c.driveKind} />
+                        <span className="w-36 shrink-0 truncate text-sm font-medium">{c.sender}</span>
+                        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{c.preview}</span>
+                        <span className="shrink-0 text-xs text-muted-foreground">{c.time}</span>
+                      </li>
+                    ))}
+                </ul>
                 <div className="mt-4 flex gap-2">
                   <button
                     type="button"
