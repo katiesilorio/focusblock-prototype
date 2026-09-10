@@ -72,7 +72,8 @@ function AboutPage() {
 
       <Section title="Status">
         Build in progress. This prototype is the interface, built to work out what a person should
-        see and control at each step. The working version is being built separately.
+        see and control at each step. The working version is built into Claude today and managed
+        through Cowork.
       </Section>
 
       <Section title="What is next">
