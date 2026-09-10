@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/state/app-state";
 import { CueList } from "@/components/CueList";
@@ -95,6 +96,13 @@ function FocusPage() {
     [app.cues, selectedBlockId],
   );
   const unassignedCues = useMemo(() => app.cues.filter((c) => c.blockId === null), [app.cues]);
+  const suggestedCues = useMemo(
+    () =>
+      app.cues.filter(
+        (c) => c.blockId === null && c.suggestedBlockId === selectedBlockId && !c.suggestionDismissed,
+      ),
+    [app.cues, selectedBlockId],
+  );
   const selectedCue = app.cues.find((c) => c.id === selectedCueId) ?? null;
 
   const blockingResolved =
@@ -127,7 +135,18 @@ function FocusPage() {
         >
           Home
         </button>
-        <p className="px-2 text-xs uppercase tracking-wide text-muted-foreground">Blocks</p>
+        <div className="flex items-center justify-between px-2">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Blocks</p>
+          <Link
+            to="/blocks"
+            search={{ create: true }}
+            title="Create a Block"
+            aria-label="Create a Block"
+            className="rounded-md p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.5} />
+          </Link>
+        </div>
         <ul className="mt-3 space-y-0.5">
           {app.blocks.map((b) => {
             const count = app.cues.filter(
@@ -303,6 +322,11 @@ function FocusPage() {
                 selectedId={selectedCueId}
                 onSelect={setSelectedCueId}
                 firstFlagRef={firstFlagId}
+                suggested={{
+                  cues: suggestedCues,
+                  onAccept: (cueId) => app.reassign(cueId, activeBlock.id),
+                  onDismiss: (cueId) => app.dismissContextSuggestion(cueId),
+                }}
               />
             </div>
           </div>

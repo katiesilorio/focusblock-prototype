@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Sparkles, X } from "lucide-react";
 import { chipFromUrl, useApp } from "@/state/app-state";
 import { chipUrl, SUGGESTED_BLOCK } from "@/data/focusblock";
 import { ChipIcon, ToolIcon } from "@/components/bits";
 
 export const Route = createFileRoute("/blocks")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    create: search.create === true || search.create === "true" ? true : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Blocks, FocusBlock prototype" },
@@ -28,7 +31,11 @@ export const Route = createFileRoute("/blocks")({
 function BlocksPage() {
   const app = useApp();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const search = Route.useSearch();
   const [creating, setCreating] = useState(false);
+  useEffect(() => {
+    if (search.create) setCreating(true);
+  }, [search.create]);
   const [name, setName] = useState("");
   const [links, setLinks] = useState<string[]>([""]);
   const [suggestionName, setSuggestionName] = useState(SUGGESTED_BLOCK.name);
@@ -177,6 +184,44 @@ function BlocksPage() {
                 </span>
               ))}
             </div>
+
+            {(() => {
+              const suggestions = app.cues.filter(
+                (c) => c.blockId === null && c.suggestedBlockId === b.id && !c.suggestionDismissed,
+              );
+              if (suggestions.length === 0) return null;
+              return (
+                <div className="mt-4 rounded-lg border border-border bg-accent-soft/50 p-3">
+                  <p className="flex items-center gap-1.5 text-xs font-medium">
+                    <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    Suggested context
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {suggestions.map((c) => (
+                      <li key={c.id} className="flex items-start justify-between gap-3 text-xs">
+                        <div className="flex min-w-0 items-start gap-2">
+                          <ToolIcon tool={c.tool} driveKind={c.driveKind} className="mt-0.5 h-3.5 w-3.5" />
+                          <div className="min-w-0">
+                            <p className="truncate">
+                              <span className="font-medium">{c.sender}:</span> {c.preview}
+                            </p>
+                            <p className="text-muted-foreground">{c.suggestedReason}</p>
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 gap-1.5">
+                          <button type="button" className="btn-base btn-primary" onClick={() => app.reassign(c.id, b.id)}>
+                            Add
+                          </button>
+                          <button type="button" className="btn-base btn-quiet" onClick={() => app.dismissContextSuggestion(c.id)}>
+                            Dismiss
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
 
             <form
               className="mt-4 flex gap-2"

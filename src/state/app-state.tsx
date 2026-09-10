@@ -54,6 +54,8 @@ type Ctx = State & {
   markDone: (cueId: string) => void;
   snooze: (cueId: string, until?: string) => void;
   reassign: (cueId: string, blockId: string) => void;
+  /** Dismiss the AI's suggestion that a cue belongs to a Block. */
+  dismissContextSuggestion: (cueId: string) => void;
   sendReply: (cueId: string, text: string) => void;
   moveToUat: (cueId: string) => void;
   changeStatus: (cueId: string, status: string) => void;
@@ -189,6 +191,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       snooze(cueId, until) {
         patchCue(cueId, { snoozed: true });
         log(cueId, `Snoozed ${until ?? ""}`.trim());
+      },
+      dismissContextSuggestion(cueId) {
+        patchCue(cueId, { suggestionDismissed: true });
       },
       reassign(cueId, blockId) {
         patchCue(cueId, { blockId });

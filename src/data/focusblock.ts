@@ -61,6 +61,11 @@ export type Cue = {
   openActionItem: boolean;
   ask?: string;
   draft: string;
+  /** Set on unassigned cues the AI thinks belong to a Block, with its one-line reason. */
+  suggestedBlockId?: string;
+  suggestedReason?: string;
+  /** The person dismissed the suggestion for this cue. */
+  suggestionDismissed?: boolean;
   // runtime state
   resolved?: boolean;
   replied?: boolean;
@@ -639,6 +644,8 @@ export const initialCues: Cue[] = [
   {
     id: "cue-27",
     blockId: null,
+    suggestedBlockId: "catalog",
+    suggestedReason: "Priya is offering a slot to walk the team through the checkout redesign, and Priya and the offsite both sit in Spring catalog launch.",
     tool: "Google Drive",
     origin: "Team offsite agenda",
     sender: "Priya Raman",
@@ -654,6 +661,8 @@ export const initialCues: Cue[] = [
   {
     id: "cue-28",
     blockId: null,
+    suggestedBlockId: "returns",
+    suggestedReason: "Mentions warehouse B, the packing cutoff, and returns processing, all of which live in Returns pipeline.",
     tool: "Gmail",
     origin: "Re: Carrier pickup window change",
     sender: "Sam Castillo",
@@ -671,6 +680,8 @@ export const initialCues: Cue[] = [
   {
     id: "cue-29",
     blockId: null,
+    suggestedBlockId: "checkout",
+    suggestedReason: "A SHOP ticket about the account page, and SHOP is the project key linked to Checkout redesign.",
     tool: "Jira",
     origin: "SHOP-510 Gift card balance shows stale value after redemption",
     ticketKey: "SHOP-510",
@@ -689,6 +700,8 @@ export const initialCues: Cue[] = [
   {
     id: "cue-30",
     blockId: null,
+    suggestedBlockId: "vendor",
+    suggestedReason: "Jules is asking about vendor invoices, and the Summit Textiles invoice belongs to Vendor contract renewal.",
     tool: "Slack",
     origin: "#general",
     sender: "Jules Moreau",
@@ -704,6 +717,8 @@ export const initialCues: Cue[] = [
   {
     id: "cue-31",
     blockId: null,
+    suggestedBlockId: "returns",
+    suggestedReason: "A comment on the returns dashboard, which is linked to Returns pipeline.",
     tool: "Google Drive",
     driveKind: "sheet",
     origin: "Returns dashboard, Q3",

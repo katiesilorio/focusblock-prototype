@@ -2,7 +2,7 @@ import type { Cue, SortOption } from "@/data/focusblock";
 import { SORT_OPTIONS } from "@/data/focusblock";
 import { TABS, tabOf, sortCues, type TabName } from "@/lib/cues";
 import { ToolIcon, UrgencyFlag } from "@/components/bits";
-import { Dot, FolderInput } from "lucide-react";
+import { Dot, FolderInput, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 export function CueList({
@@ -30,7 +30,14 @@ export function CueList({
     onAssign: (cueId: string, blockId: string) => void;
     onCreate: (cueId: string, name: string) => void;
   };
+  /** When given, a fourth tab lists context the AI suggests adding to this Block. */
+  suggested?: {
+    cues: Cue[];
+    onAccept: (cueId: string) => void;
+    onDismiss: (cueId: string) => void;
+  };
 }) {
+  const [showSuggested, setShowSuggested] = useState(false);
   const [assignOpen, setAssignOpen] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
   const counts: Record<TabName, number> = {
@@ -55,9 +62,12 @@ export function CueList({
             <button
               key={t}
               type="button"
-              onClick={() => onTab(t)}
+              onClick={() => {
+                setShowSuggested(false);
+                onTab(t);
+              }}
               className={`-mb-px border-b-2 pb-2 text-sm transition-colors ${
-                t === tab
+                t === tab && !showSuggested
                   ? "border-accent text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
@@ -66,6 +76,21 @@ export function CueList({
               <span className="ml-1 text-xs text-muted-foreground tabular-nums">{counts[t]}</span>
             </button>
           ))}
+          {suggested && (
+            <button
+              type="button"
+              onClick={() => setShowSuggested(true)}
+              className={`-mb-px flex items-center gap-1.5 border-b-2 pb-2 text-sm transition-colors ${
+                showSuggested
+                  ? "border-accent text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
+              Suggested context
+              <span className="ml-1 text-xs text-muted-foreground tabular-nums">{suggested.cues.length}</span>
+            </button>
+          )}
         </div>
         <label className="flex items-center gap-2 pb-2 text-xs text-muted-foreground">
           Sort
@@ -83,6 +108,42 @@ export function CueList({
         </label>
       </div>
 
+      {suggested && showSuggested ? (
+        <div className="mt-2">
+          {suggested.cues.length === 0 && (
+            <p className="px-3 py-8 text-sm text-muted-foreground">
+              Nothing to suggest right now. FocusBlock looks through unassigned context for anything that mentions this Block's people, channels, documents, or tickets.
+            </p>
+          )}
+          <ul>
+            {suggested.cues.map((cue) => (
+              <li key={cue.id} className="rounded-lg px-3 py-3 hover:bg-muted">
+                <div className="flex items-center gap-3">
+                  <ToolIcon tool={cue.tool} driveKind={cue.driveKind} />
+                  <span className="w-36 shrink-0 truncate text-sm font-medium">{cue.sender}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">{cue.preview}</span>
+                  <span className="w-28 shrink-0 text-right text-xs text-muted-foreground">{cue.time}</span>
+                  <UrgencyFlag urgency={cue.urgency} reason={cue.reason} />
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-4 pl-7">
+                  <p className="text-xs text-muted-foreground">
+                    <Sparkles className="mr-1 inline h-3 w-3" strokeWidth={1.5} />
+                    {cue.suggestedReason}
+                  </p>
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" className="btn-base btn-primary" onClick={() => suggested.onAccept(cue.id)}>
+                      Add to Block
+                    </button>
+                    <button type="button" className="btn-base btn-quiet" onClick={() => suggested.onDismiss(cue.id)}>
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
       <ul className="mt-2">
         {visible.length === 0 && (
           <li className="px-1 py-10 text-sm text-muted-foreground">Nothing here right now.</li>
@@ -182,6 +243,7 @@ export function CueList({
           </li>
         ))}
       </ul>
+      )}
     </div>
   );
 }
