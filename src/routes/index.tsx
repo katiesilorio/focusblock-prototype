@@ -149,12 +149,6 @@ function FocusPage() {
                       : "hover:bg-muted"
                   }`}
                 >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      b.priority === "High" ? "bg-foreground" : b.priority === "Normal" ? "bg-muted-foreground" : "bg-border"
-                    }`}
-                    title={`${b.priority} priority`}
-                  />
                   <span className="min-w-0 flex-1 truncate">{b.name}</span>
                   <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
                 </button>
@@ -250,7 +244,7 @@ function FocusPage() {
                     if (selectedCueId === cueId) setSelectedCueId(null);
                   },
                   onCreate: (cueId, name) => {
-                    const id = app.createBlock(name, "Normal", []);
+                    const id = app.createBlock(name, []);
                     app.reassign(cueId, id);
                     if (selectedCueId === cueId) setSelectedCueId(null);
                   },

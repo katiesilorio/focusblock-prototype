@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { chipFromUrl, useApp } from "@/state/app-state";
-import { chipUrl, SUGGESTED_BLOCK, type Priority } from "@/data/focusblock";
+import { chipUrl, SUGGESTED_BLOCK } from "@/data/focusblock";
 import { ChipIcon, ToolIcon } from "@/components/bits";
 
 export const Route = createFileRoute("/blocks")({
@@ -12,13 +12,13 @@ export const Route = createFileRoute("/blocks")({
       {
         name: "description",
         content:
-          "Configure Blocks: a name, a priority, and the channels, documents, tickets, and threads their context comes from.",
+          "Configure Blocks: a name and the channels, documents, tickets, and threads their context comes from.",
       },
       { property: "og:title", content: "Blocks, FocusBlock prototype" },
       {
         property: "og:description",
         content:
-          "Configure Blocks: a name, a priority, and the channels, documents, tickets, and threads their context comes from.",
+          "Configure Blocks: a name and the channels, documents, tickets, and threads their context comes from.",
       },
     ],
   }),
@@ -30,7 +30,6 @@ function BlocksPage() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
-  const [priority, setPriority] = useState<Priority>("Normal");
   const [links, setLinks] = useState<string[]>([""]);
   const [suggestionName, setSuggestionName] = useState(SUGGESTED_BLOCK.name);
 
@@ -86,21 +85,6 @@ function BlocksPage() {
             placeholder="Block name"
             className="mt-4 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
           />
-          <p className="mt-4 text-xs text-muted-foreground">Priority</p>
-          <div className="mt-1.5 flex gap-2">
-            {(["High", "Normal", "Low"] as Priority[]).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPriority(p)}
-                className={`rounded-md border px-3 py-1.5 text-sm ${
-                  priority === p ? "border-accent bg-accent-soft" : "border-border hover:bg-muted"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
           <p className="mt-4 text-xs text-muted-foreground">Context</p>
           <div className="mt-1.5 space-y-2">
             {links.map((value, i) => {
@@ -146,10 +130,9 @@ function BlocksPage() {
               disabled={!name.trim()}
               onClick={() => {
                 const chips = links.map((l) => l.trim()).filter(Boolean).map(chipFromUrl);
-                app.createBlock(name.trim(), priority, chips);
+                app.createBlock(name.trim(), chips);
                 setName("");
                 setLinks([""]);
-                setPriority("Normal");
                 setCreating(false);
               }}
             >
@@ -165,10 +148,7 @@ function BlocksPage() {
       <div className="mt-6 space-y-4">
         {app.blocks.map((b) => (
           <div key={b.id} className="card-soft p-5">
-            <div className="flex items-baseline justify-between">
-              <p className="text-sm font-medium">{b.name}</p>
-              <p className="text-xs text-muted-foreground">{b.priority} priority</p>
-            </div>
+            <p className="text-sm font-medium">{b.name}</p>
             <p className="mt-1 text-xs text-muted-foreground">{b.members.join(", ")}</p>
 
             <div className="mt-4 flex flex-wrap gap-2">

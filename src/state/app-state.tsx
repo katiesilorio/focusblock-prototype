@@ -8,8 +8,6 @@ import {
   type ContextChip,
   type Cue,
   type Integration,
-  type Priority,
-  PRIORITY_ORDER,
 } from "@/data/focusblock";
 
 export type Counters = {
@@ -44,7 +42,7 @@ type State = {
 };
 
 type Ctx = State & {
-  createBlock: (name: string, priority: Priority, chips: ContextChip[]) => string;
+  createBlock: (name: string, chips: ContextChip[]) => string;
   addChip: (blockId: string, url: string) => void;
   removeChip: (blockId: string, chipId: string) => void;
   acceptSuggestion: (name: string) => void;
@@ -103,24 +101,21 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             : c,
         ),
       );
-    const sortByPriority = (list: Block[]) =>
-      [...list].sort((a, b) => PRIORITY_ORDER.indexOf(a.priority) - PRIORITY_ORDER.indexOf(b.priority));
 
     return {
-      blocks: sortByPriority(blocks),
+      blocks,
       cues,
       integrations,
       suggestionState,
       session,
       counters,
-      createBlock(name, priority, chips) {
+      createBlock(name, chips) {
         const id = `block-${Math.random().toString(36).slice(2, 8)}`;
         // Newest Block goes to the top of the list.
         setBlocks((prev) => [
           {
             id,
             name,
-            priority,
             members: ["Maya Lindqvist"],
             chips,
             summary:
@@ -150,7 +145,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           {
             id,
             name: name || SUGGESTED_BLOCK.name,
-            priority: "Normal",
             members: ["Maya Lindqvist", "Dana Whitfield", "Sam Castillo"],
             chips: [
               { id: "d1", kind: "slack", label: "#general" },

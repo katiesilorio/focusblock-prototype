@@ -172,7 +172,7 @@ export function CuePanel({
                 e.preventDefault();
                 const n = newBlockName.trim();
                 if (!n) return;
-                const id = app.createBlock(n, "Normal", []);
+                const id = app.createBlock(n, []);
                 app.reassign(cue.id, id);
                 setMenu("none");
                 onClose();

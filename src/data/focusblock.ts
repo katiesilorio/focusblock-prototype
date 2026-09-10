@@ -3,8 +3,6 @@
 
 export type Tool = "Slack" | "Gmail" | "Jira" | "Google Drive";
 export type Urgency = "Blocking" | "Action needed" | "FYI";
-export type Priority = "High" | "Normal" | "Low";
-export const PRIORITY_ORDER: Priority[] = ["High", "Normal", "Low"];
 
 export type ChipKind = "slack" | "doc" | "sheet" | "slide" | "jira" | "email" | "link";
 
@@ -80,7 +78,6 @@ export type CueActivity = {
 export type Block = {
   id: string;
   name: string;
-  priority: Priority;
   members: string[];
   chips: ContextChip[];
   summary: string;
@@ -103,7 +100,6 @@ export const initialBlocks: Block[] = [
   {
     id: "checkout",
     name: "Checkout redesign",
-    priority: "High",
     members: ["Maya Lindqvist", "Theo Okafor", "Priya Raman"],
     chips: [
       { id: "c1", kind: "slack", label: "#checkout-redesign" },
@@ -118,7 +114,6 @@ export const initialBlocks: Block[] = [
   {
     id: "returns",
     name: "Returns pipeline",
-    priority: "High",
     members: ["Maya Lindqvist", "Sam Castillo", "Dana Whitfield"],
     chips: [
       { id: "r1", kind: "slack", label: "#warehouse-returns" },
@@ -134,7 +129,6 @@ export const initialBlocks: Block[] = [
   {
     id: "catalog",
     name: "Spring catalog launch",
-    priority: "Normal",
     members: ["Maya Lindqvist", "Priya Raman", "Jules Moreau"],
     chips: [
       { id: "s1", kind: "doc", label: "Spring catalog plan" },
@@ -149,7 +143,6 @@ export const initialBlocks: Block[] = [
   {
     id: "vendor",
     name: "Vendor contract renewal",
-    priority: "Normal",
     members: ["Maya Lindqvist", "Jules Moreau"],
     chips: [
       { id: "v1", kind: "email", label: "Thread with Rowan Ellis" },
