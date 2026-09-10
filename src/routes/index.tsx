@@ -297,10 +297,10 @@ function FocusPage() {
 
         {activeBlock && (
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <h1 className="text-xl font-medium tracking-tight">{activeBlock.name}</h1>
               {session && session.blockId === activeBlock.id ? (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <span className="text-2xl font-medium tabular-nums text-accent">
                     {String(Math.floor(remaining / 60)).padStart(2, "0")}:
                     {String(remaining % 60).padStart(2, "0")}
