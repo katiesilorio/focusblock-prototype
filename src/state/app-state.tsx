@@ -1,14 +1,43 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import {
+  chipUrl,
+  cueUrl,
   initialBlocks,
   initialCues,
   initialIntegrations,
   SUGGESTED_BLOCK,
   type Block,
+  type ChipKind,
   type ContextChip,
   type Cue,
   type Integration,
 } from "@/data/focusblock";
+
+/** One thing the person did during a session, kept so the summary can link back to it. */
+export type SessionEvent = {
+  kind: "reply" | "comment" | "done" | "ticket" | "context";
+  icon: ChipKind;
+  /** Link text: channel, subject, ticket key, document or chip label. */
+  label: string;
+  url: string;
+  /** Who the reply or comment went to. */
+  person?: string;
+  /** Extra words for the line, like a ticket's new status or the Block a chip was added to. */
+  detail?: string;
+};
+
+const SUGGESTED_CHIPS: ContextChip[] = [
+  { id: "d1", kind: "slack", label: "#general" },
+  { id: "d2", kind: "email", label: "Thread with Dana Whitfield" },
+  { id: "d3", kind: "jira", label: "OPS-241" },
+];
+
+function cueIcon(cue: Cue): ChipKind {
+  if (cue.tool === "Slack") return "slack";
+  if (cue.tool === "Jira") return "jira";
+  if (cue.tool === "Gmail") return "email";
+  return cue.driveKind ?? "doc";
+}
 
 export type Counters = {
   replies: number;
@@ -16,6 +45,7 @@ export type Counters = {
   resolved: number;
   ticketsProgressed: string[];
   words: number;
+  events: SessionEvent[];
 };
 
 const emptyCounters: Counters = {
@@ -24,6 +54,7 @@ const emptyCounters: Counters = {
   resolved: 0,
   ticketsProgressed: [],
   words: 0,
+  events: [],
 };
 
 export type Session = {
@@ -90,6 +121,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [counters, setCounters] = useState<Counters>(emptyCounters);
 
+  function record(event: SessionEvent) {
+    setCounters((c) => ({ ...c, events: [...c.events, event] }));
+  }
+
+  function recordChips(chips: ContextChip[], blockName: string) {
+    chips.forEach((chip) =>
+      record({ kind: "context", icon: chip.kind, label: chip.label, url: chipUrl(chip), detail: blockName }),
+    );
+  }
+
   const value = useMemo<Ctx>(() => {
     const patchCue = (cueId: string, patch: Partial<Cue>) =>
       setCues((prev) => prev.map((c) => (c.id === cueId ? { ...c, ...patch } : c)));
@@ -127,12 +168,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           },
           ...prev,
         ]);
+        recordChips(chips, name);
         return id;
       },
       addChip(blockId, url) {
+        const chip = chipFromUrl(url);
         setBlocks((prev) =>
-          prev.map((b) => (b.id === blockId ? { ...b, chips: [...b.chips, chipFromUrl(url)] } : b)),
+          prev.map((b) => (b.id === blockId ? { ...b, chips: [...b.chips, chip] } : b)),
         );
+        recordChips([chip], blocks.find((b) => b.id === blockId)?.name ?? "a Block");
       },
       removeChip(blockId, chipId) {
         setBlocks((prev) =>
@@ -148,11 +192,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             id,
             name: name || SUGGESTED_BLOCK.name,
             members: ["Maya Lindqvist", "Dana Whitfield", "Sam Castillo"],
-            chips: [
-              { id: "d1", kind: "slack", label: "#general" },
-              { id: "d2", kind: "email", label: "Thread with Dana Whitfield" },
-              { id: "d3", kind: "jira", label: "OPS-241" },
-            ],
+            chips: SUGGESTED_CHIPS,
             summary:
               "Three separate reports point at the same thing: parcels arriving crushed on one carrier route. Dana has the customer photos, Sam has the manual intake cost, and nobody owns the carrier conversation yet. Start by pulling the claims from that route for the last month.",
             summaryAfterUnblock:
@@ -164,6 +204,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           prev.map((c) => (SUGGESTED_BLOCK.cueIds.includes(c.id) ? { ...c, blockId: id } : c)),
         );
         setSuggestionState("accepted");
+        recordChips(SUGGESTED_CHIPS, name || SUGGESTED_BLOCK.name);
       },
       dismissSuggestion() {
         setSuggestionState("dismissed");
@@ -184,9 +225,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setCounters(emptyCounters);
       },
       markDone(cueId) {
+        const cue = cues.find((c) => c.id === cueId);
         patchCue(cueId, { resolved: true, snoozed: false });
         log(cueId, "Marked done");
         setCounters((c) => ({ ...c, resolved: c.resolved + 1 }));
+        if (cue) record({ kind: "done", icon: cueIcon(cue), label: cue.origin, url: cueUrl(cue) });
       },
       snooze(cueId, until) {
         patchCue(cueId, { snoozed: true });
@@ -215,6 +258,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             cue && (cue.tool === "Jira" || cue.tool === "Google Drive") ? c.comments + 1 : c.comments,
           words: c.words + countWords(text),
         }));
+        if (cue) {
+          const isComment = cue.tool === "Jira" || cue.tool === "Google Drive";
+          record({
+            kind: isComment ? "comment" : "reply",
+            icon: cueIcon(cue),
+            label: cue.ticketKey ?? cue.origin,
+            url: cueUrl(cue),
+            person: cue.sender,
+          });
+        }
       },
       moveToUat(cueId) {
         const cue = cues.find((c) => c.id === cueId);
@@ -225,6 +278,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           resolved: c.resolved + 1,
           ticketsProgressed: [...c.ticketsProgressed, `${cue?.ticketKey ?? "Ticket"} to UAT`],
         }));
+        if (cue)
+          record({ kind: "ticket", icon: "jira", label: cue.ticketKey ?? "Ticket", url: cueUrl(cue), detail: "UAT" });
       },
       changeStatus(cueId, status) {
         const cue = cues.find((c) => c.id === cueId);
@@ -234,6 +289,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ...c,
           ticketsProgressed: [...c.ticketsProgressed, `${cue?.ticketKey ?? "Ticket"} to ${status}`],
         }));
+        if (cue)
+          record({ kind: "ticket", icon: "jira", label: cue.ticketKey ?? "Ticket", url: cueUrl(cue), detail: status });
       },
     };
   }, [blocks, cues, integrations, suggestionState, session, counters]);

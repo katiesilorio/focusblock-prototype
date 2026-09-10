@@ -47,6 +47,7 @@ function FocusPage() {
     name: string;
     minutes: number;
     counters: typeof app.counters;
+    remaining: number;
   } | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [tourStep, setTourStep] = useState<number | null>(null);
@@ -91,7 +92,15 @@ function FocusPage() {
     if (!app.session) return;
     const block = app.blocks.find((b) => b.id === app.session!.blockId);
     // Snapshot what was done, then clear the counters for the next session.
-    setEndedInfo({ name: block?.name ?? "", minutes: app.session.minutes, counters: app.counters });
+    const remaining = app.cues.filter(
+      (c) => c.blockId === app.session!.blockId && tabOf(c) === "Action required",
+    ).length;
+    setEndedInfo({
+      name: block?.name ?? "",
+      minutes: app.session.minutes,
+      counters: app.counters,
+      remaining,
+    });
     app.endSession();
     app.resetCounters();
     setEndOpen(true);
@@ -390,6 +399,7 @@ function FocusPage() {
           blockName={endedInfo.name}
           minutes={endedInfo.minutes}
           counters={endedInfo.counters}
+          remaining={endedInfo.remaining}
           onAnother={() => {
             setEndOpen(false);
             setStartOpen(true);
