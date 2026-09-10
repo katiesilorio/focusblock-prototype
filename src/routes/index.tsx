@@ -59,11 +59,16 @@ function FocusPage() {
   useEffect(() => {
     if (tourStep === null) return;
     const anchor = TOUR_STEPS[tourStep]?.anchor;
-    if (anchor === "urgency-flag" || anchor === "right-panel") {
+    if (anchor === "cue-list" || anchor === "urgency-flag" || anchor === "right-panel") {
       setSelectedBlockId("checkout");
       setUnassignedOpen(false);
     }
     if (anchor === "right-panel") setSelectedCueId("cue-1");
+    if (anchor === "unassigned") {
+      setSelectedCueId(null);
+      setSelectedBlockId(null);
+      setUnassignedOpen(true);
+    }
   }, [tourStep]);
 
   const session = app.session;
@@ -185,6 +190,7 @@ function FocusPage() {
             setSelectedCueId(null);
             setTab("Action required");
           }}
+          data-tour="unassigned"
           className={`mt-4 flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm ${
             unassignedOpen ? "bg-accent-soft" : "hover:bg-muted"
           }`}
@@ -328,7 +334,7 @@ function FocusPage() {
               </p>
             </div>
 
-            <div className="mt-7">
+            <div className="mt-7" data-tour="cue-list">
               <CueList
                 cues={blockCues}
                 tab={tab}

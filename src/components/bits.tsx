@@ -75,12 +75,16 @@ export function UrgencyFlag({
   withLabel?: boolean;
 }) {
   return (
-    <span
-      title={reason}
-      className={`inline-flex items-center gap-1.5 text-xs ${urgencyColor[urgency]}`}
-    >
+    <span className={`group relative inline-flex items-center gap-1.5 text-xs ${urgencyColor[urgency]}`}>
       <CircleDot className="h-3.5 w-3.5" strokeWidth={2} />
       {withLabel ? <span>{urgency}</span> : <span className="sr-only">{urgency}</span>}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute right-0 top-6 z-30 hidden w-64 rounded-lg border border-border bg-surface p-3 text-left text-xs text-foreground shadow-float group-hover:block"
+      >
+        <span className={`font-medium ${urgencyColor[urgency]}`}>{urgency}</span>
+        <span className="mt-1 block text-muted-foreground">{reason}</span>
+      </span>
     </span>
   );
 }

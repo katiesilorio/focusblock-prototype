@@ -14,7 +14,7 @@ export const TOUR_STEPS: TourStep[] = [
   },
   {
     anchor: "left-panel",
-    title: "Your Blocks",
+    title: "Blocks",
     body: "Blocks represent a group of context or a project. The number is how many items need your attention.",
   },
   {
@@ -23,14 +23,24 @@ export const TOUR_STEPS: TourStep[] = [
     body: "Pick a Block and a length of time. FocusBlock shows you what to handle first.",
   },
   {
+    anchor: "cue-list",
+    title: "The Block detail page",
+    body: "Each item here is a Cue: one message, email, ticket, or comment. The summary at the top says what is going on. The tabs split Cues into what needs you, what is done, and what is just context. Sort by urgency, date, or open action items.",
+  },
+  {
     anchor: "urgency-flag",
-    title: "The urgency flag",
-    body: "The flag is how urgent the AI thinks this is. Hover to see why.",
+    title: "Urgency",
+    body: "The flag is how urgent the AI thinks a Cue is. Hover over it to see why.",
   },
   {
     anchor: "right-panel",
-    title: "Act from here",
-    body: "Draft with AI writes the reply. You edit and send.",
+    title: "Take action on a Cue",
+    body: "For replies or comments, Draft with AI, edit and send.",
+  },
+  {
+    anchor: "unassigned",
+    title: "Unassigned",
+    body: "Context that does not belong to a Block yet lands here. Assign it to a Block, create one, or accept a Block the AI suggests.",
   },
 ];
 

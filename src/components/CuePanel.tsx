@@ -231,7 +231,7 @@ export function CuePanel({
                 }}
               >
                 <Sparkles className="mr-1.5 inline h-3.5 w-3.5" strokeWidth={1.5} />
-                {drafting ? "Drafting" : "Draft with AI"}
+                {drafting ? "Drafting in your style" : "Draft with AI"}
               </button>
               <button
                 type="button"

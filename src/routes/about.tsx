@@ -52,6 +52,7 @@ function AboutPage() {
           <li>What you got done, shown when the session ends</li>
           <li>Block configuration, including a Block the AI suggests from unassigned context</li>
           <li>An Integrations screen for Slack, Gmail, Jira, and Google Drive</li>
+          <li>A Writing style page, where examples of how you write become a style guide that Draft with AI follows</li>
         </ul>
       </Section>
 
