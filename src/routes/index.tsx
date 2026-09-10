@@ -41,6 +41,7 @@ function FocusPage() {
   const [sort, setSort] = useState<SortOption>("Urgency");
   const [selectedCueId, setSelectedCueId] = useState<string | null>(null);
   const [startOpen, setStartOpen] = useState(false);
+  const [startFixedBlockId, setStartFixedBlockId] = useState<string | null>(null);
   const [endOpen, setEndOpen] = useState(false);
   const [endedInfo, setEndedInfo] = useState<{
     name: string;
@@ -316,8 +317,11 @@ function FocusPage() {
               ) : (
                 <button
                   type="button"
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                  onClick={() => setStartOpen(true)}
+                  className="btn-base btn-primary"
+                  onClick={() => {
+                    setStartFixedBlockId(activeBlock.id);
+                    setStartOpen(true);
+                  }}
                 >
                   Start a FocusBlock on this Block
                 </button>
@@ -365,9 +369,14 @@ function FocusPage() {
 
       {startOpen && (
         <StartDialog
-          onClose={() => setStartOpen(false)}
+          fixedBlockId={startFixedBlockId ?? undefined}
+          onClose={() => {
+            setStartOpen(false);
+            setStartFixedBlockId(null);
+          }}
           onStarted={(blockId) => {
             setStartOpen(false);
+            setStartFixedBlockId(null);
             setSelectedBlockId(blockId);
             setUnassignedOpen(false);
             setSelectedCueId(null);
