@@ -336,6 +336,22 @@ function FocusPage() {
                   Start a FocusBlock on this Block
                 </button>
               )}
+            </div>
+
+            <div className="card-soft mt-5 p-5">
+              <div className="flex items-baseline justify-between">
+                <p className="flex items-center gap-1.5 text-sm font-medium">
+                  <Sparkles className="h-4 w-4" strokeWidth={1.5} />
+                  What is going on
+                </p>
+                <p className="text-xs text-muted-foreground">Summarized by FocusBlock</p>
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {blockingResolved ? activeBlock.summaryAfterUnblock : activeBlock.summary}
+              </p>
+            </div>
+
+            <div className="mt-3">
               <button
                 type="button"
                 className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-4 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -344,16 +360,6 @@ function FocusPage() {
                 <Plus className="h-3 w-3" strokeWidth={2} />
                 Add context
               </button>
-            </div>
-
-            <div className="card-soft mt-5 p-5">
-              <div className="flex items-baseline justify-between">
-                <p className="text-sm font-medium">What is going on</p>
-                <p className="text-xs text-muted-foreground">Summarized by FocusBlock</p>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {blockingResolved ? activeBlock.summaryAfterUnblock : activeBlock.summary}
-              </p>
             </div>
 
 
