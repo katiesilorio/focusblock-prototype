@@ -249,6 +249,11 @@ function FocusPage() {
                     app.reassign(cueId, blockId);
                     if (selectedCueId === cueId) setSelectedCueId(null);
                   },
+                  onCreate: (cueId, name) => {
+                    const id = app.createBlock(name, "Normal", []);
+                    app.reassign(cueId, id);
+                    if (selectedCueId === cueId) setSelectedCueId(null);
+                  },
                 }}
               />
             </div>

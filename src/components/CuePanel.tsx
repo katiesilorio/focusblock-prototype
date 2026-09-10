@@ -43,7 +43,7 @@ export function CuePanel({
           title={`Open in ${cue.tool}`}
           className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
         >
-          <ToolIcon tool={cue.tool} />
+          <ToolIcon tool={cue.tool} driveKind={cue.driveKind} />
           <span>{cue.tool}</span>
           <span>/</span>
           <span className="truncate underline underline-offset-2">{cue.origin}</span>
@@ -69,8 +69,8 @@ export function CuePanel({
         <p className="mt-4 text-sm leading-relaxed">{cue.body}</p>
 
         {cue.openActionItem && cue.ask && (
-          <p className="mt-4 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-            Open action item: {cue.ask}
+          <p className="mt-4 rounded-lg bg-accent-soft px-3 py-2 text-xs text-foreground">
+            <span className="font-medium">Open action item:</span> {cue.ask}
           </p>
         )}
 

@@ -1,11 +1,20 @@
 import { FileText, Hash, Mail, Ticket, CircleDot, Table, Presentation, Link as LinkIcon } from "lucide-react";
 import type { ChipKind, Tool, Urgency } from "@/data/focusblock";
 
-export function ToolIcon({ tool, className = "h-4 w-4" }: { tool: Tool; className?: string }) {
+export function ToolIcon({
+  tool,
+  driveKind,
+  className = "h-4 w-4",
+}: {
+  tool: Tool;
+  driveKind?: "doc" | "sheet" | "slide" | undefined;
+  className?: string;
+}) {
   const props = { className: `${className} text-muted-foreground`, strokeWidth: 1.5 };
+  const driveName = driveKind === "sheet" ? "Google Sheet" : driveKind === "slide" ? "Google Slides" : "Google Doc";
   const icon =
-    tool === "Slack" ? <Hash {...props} /> : tool === "Gmail" ? <Mail {...props} /> : tool === "Jira" ? <Ticket {...props} /> : <FileText {...props} />;
-  return <span title={tool} className="inline-flex">{icon}</span>;
+    tool === "Slack" ? <Hash {...props} /> : tool === "Gmail" ? <Mail {...props} /> : tool === "Jira" ? <Ticket {...props} /> : driveKind === "sheet" ? <Table {...props} /> : driveKind === "slide" ? <Presentation {...props} /> : <FileText {...props} />;
+  return <span title={tool === "Google Drive" ? driveName : tool} className="inline-flex">{icon}</span>;
 }
 
 /** Icon for a context chip, by the kind of link it is. */

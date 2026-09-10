@@ -39,6 +39,8 @@ export function cueUrl(cue: Cue): string {
   if (cue.tool === "Slack") return `https://app.slack.com/client/harborandpine/${s}`;
   if (cue.tool === "Jira") return `https://harborandpine.atlassian.net/browse/${cue.ticketKey ?? s}`;
   if (cue.tool === "Gmail") return `https://mail.google.com/mail/#search/${encodeURIComponent(cue.origin)}`;
+  if (cue.driveKind === "sheet") return `https://docs.google.com/spreadsheets/d/${s}`;
+  if (cue.driveKind === "slide") return `https://docs.google.com/presentation/d/${s}`;
   return `https://docs.google.com/document/d/${s}`;
 }
 
@@ -47,6 +49,8 @@ export type Cue = {
   blockId: string | null;
   tool: Tool;
   origin: string; // channel name, email subject, ticket key + title, document name
+  /** For Google Drive cues: which kind of file the comment is on. Defaults to a doc. */
+  driveKind?: "doc" | "sheet" | "slide";
   ticketKey?: string;
   ticketStatus?: string;
   sender: string;
@@ -119,6 +123,7 @@ export const initialBlocks: Block[] = [
     chips: [
       { id: "r1", kind: "slack", label: "#warehouse-returns" },
       { id: "r2", kind: "jira", label: "OPS" },
+      { id: "r4", kind: "sheet", label: "Warehouse B label failures" },
       { id: "r3", kind: "email", label: "Thread with Sam Castillo" },
     ],
     summary:
@@ -133,6 +138,7 @@ export const initialBlocks: Block[] = [
     members: ["Maya Lindqvist", "Priya Raman", "Jules Moreau"],
     chips: [
       { id: "s1", kind: "doc", label: "Spring catalog plan" },
+      { id: "s3", kind: "slide", label: "Spring catalog launch deck" },
       { id: "s2", kind: "slack", label: "#catalog" },
     ],
     summary:
@@ -413,6 +419,24 @@ export const initialCues: Cue[] = [
     draft: "Thanks for the heads up, I will read the dashboard dip on Monday as the pickup shift.",
   },
 
+  {
+    id: "cue-32",
+    blockId: "returns",
+    tool: "Google Drive",
+    driveKind: "sheet",
+    origin: "Warehouse B label failures",
+    sender: "Sam Castillo",
+    time: "Today, 10:05 AM",
+    minutesAgo: 137,
+    preview: "Comment on the failures sheet: row 14 onward are all the new label format.",
+    body: "Added the scanner log to this sheet. From row 14 onward every failure is the new label format, so the rollback should clear all of them. Can you confirm the count matches what Dana is seeing on the support side?",
+    urgency: "Action needed",
+    reason: "Sam is asking you to confirm a number before he acts on it.",
+    openActionItem: true,
+    ask: "Confirm the failure count matches support's count.",
+    draft: "Confirmed, Dana has 31 tickets and your sheet shows 31 rows from 14 down. Go ahead with the rollback for warehouse B.",
+  },
+
   // ---------- Spring catalog launch ----------
   {
     id: "cue-16",
@@ -477,6 +501,24 @@ export const initialCues: Cue[] = [
     reason: "Shared for reading. The decision comes later.",
     openActionItem: false,
     draft: "Read them, the second concept is the strongest to me. I will comment properly when you ask for the call.",
+  },
+
+  {
+    id: "cue-33",
+    blockId: "catalog",
+    tool: "Google Drive",
+    driveKind: "slide",
+    origin: "Spring catalog launch deck",
+    sender: "Jules Moreau",
+    time: "Today, 8:15 AM",
+    minutesAgo: 247,
+    preview: "Comment on slide 6: the budget figure does not match the plan.",
+    body: "Slide 6 shows the photography budget at 18k and the plan says 22k. Which one is right? I do not want to sign off on a number that changes the week after.",
+    urgency: "Action needed",
+    reason: "Jules will not sign off until the two numbers agree, and the sign-off is what unblocks the launch.",
+    openActionItem: true,
+    ask: "Say which photography budget figure is correct and fix the other one.",
+    draft: "22k is right. Slide 6 is stale from the first draft. I am updating the slide now so the deck and the plan match.",
   },
 
   // ---------- Vendor contract renewal ----------
@@ -670,6 +712,7 @@ export const initialCues: Cue[] = [
     id: "cue-31",
     blockId: null,
     tool: "Google Drive",
+    driveKind: "sheet",
     origin: "Returns dashboard, Q3",
     sender: "Dana Whitfield",
     time: "Yesterday, 10:20 AM",
