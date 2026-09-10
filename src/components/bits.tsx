@@ -1,5 +1,36 @@
-import { FileText, Hash, Mail, Ticket, CircleDot, Table, Presentation, Link as LinkIcon } from "lucide-react";
+import { CircleDot, Link as LinkIcon } from "lucide-react";
 import type { ChipKind, Tool, Urgency } from "@/data/focusblock";
+import jiraLogo from "@/assets/logos/jira.png";
+import gmailLogo from "@/assets/logos/gmail.png";
+import sheetsLogo from "@/assets/logos/sheets.png";
+import slidesLogo from "@/assets/logos/slides.png";
+import docsLogo from "@/assets/logos/docs.png";
+import slackLogo from "@/assets/logos/slack.png";
+
+/*
+ * Tool logos are the official marks of Slack, Atlassian (Jira), and Google (Gmail, Docs, Sheets, Slides),
+ * used here only to show which tool a piece of context comes from. They belong to their owners.
+ */
+
+type DriveKind = "doc" | "sheet" | "slide";
+
+const LOGOS = {
+  slack: { src: slackLogo, name: "Slack" },
+  gmail: { src: gmailLogo, name: "Gmail" },
+  jira: { src: jiraLogo, name: "Jira" },
+  doc: { src: docsLogo, name: "Google Doc" },
+  sheet: { src: sheetsLogo, name: "Google Sheet" },
+  slide: { src: slidesLogo, name: "Google Slides" },
+} as const;
+
+function Logo({ id, className }: { id: keyof typeof LOGOS; className: string }) {
+  const l = LOGOS[id];
+  return (
+    <span title={l.name} className="inline-flex shrink-0 items-center">
+      <img src={l.src} alt={l.name} className={`${className} object-contain`} />
+    </span>
+  );
+}
 
 export function ToolIcon({
   tool,
@@ -7,23 +38,25 @@ export function ToolIcon({
   className = "h-4 w-4",
 }: {
   tool: Tool;
-  driveKind?: "doc" | "sheet" | "slide" | undefined;
+  driveKind?: DriveKind | undefined;
   className?: string;
 }) {
-  const props = { className: `${className} text-muted-foreground`, strokeWidth: 1.5 };
-  const driveName = driveKind === "sheet" ? "Google Sheet" : driveKind === "slide" ? "Google Slides" : "Google Doc";
-  const icon =
-    tool === "Slack" ? <Hash {...props} /> : tool === "Gmail" ? <Mail {...props} /> : tool === "Jira" ? <Ticket {...props} /> : driveKind === "sheet" ? <Table {...props} /> : driveKind === "slide" ? <Presentation {...props} /> : <FileText {...props} />;
-  return <span title={tool === "Google Drive" ? driveName : tool} className="inline-flex">{icon}</span>;
+  if (tool === "Slack") return <Logo id="slack" className={className} />;
+  if (tool === "Gmail") return <Logo id="gmail" className={className} />;
+  if (tool === "Jira") return <Logo id="jira" className={className} />;
+  return <Logo id={driveKind ?? "doc"} className={className} />;
 }
 
 /** Icon for a context chip, by the kind of link it is. */
 export function ChipIcon({ kind, className = "h-3.5 w-3.5" }: { kind: ChipKind; className?: string }) {
-  const props = { className, strokeWidth: 1.5 };
-  const names: Record<ChipKind, string> = { slack: "Slack channel", doc: "Google Doc", sheet: "Google Sheet", slide: "Google Slides", jira: "Jira ticket", email: "Email thread", link: "Link" };
-  const icon =
-    kind === "slack" ? <Hash {...props} /> : kind === "doc" ? <FileText {...props} /> : kind === "sheet" ? <Table {...props} /> : kind === "slide" ? <Presentation {...props} /> : kind === "jira" ? <Ticket {...props} /> : kind === "email" ? <Mail {...props} /> : <LinkIcon {...props} />;
-  return <span title={names[kind]} className="inline-flex">{icon}</span>;
+  if (kind === "email") return <Logo id="gmail" className={className} />;
+  if (kind === "link")
+    return (
+      <span title="Link" className="inline-flex">
+        <LinkIcon className={className} strokeWidth={1.5} />
+      </span>
+    );
+  return <Logo id={kind} className={className} />;
 }
 
 const urgencyColor: Record<Urgency, string> = {
