@@ -317,7 +317,7 @@ function FocusPage() {
               ) : (
                 <button
                   type="button"
-                  className="btn-base btn-primary"
+                  className="rounded-full bg-accent-soft px-4 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                   onClick={() => {
                     setStartFixedBlockId(activeBlock.id);
                     setStartOpen(true);
