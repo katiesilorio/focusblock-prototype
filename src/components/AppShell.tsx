@@ -57,7 +57,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               key={item.to}
               to={item.to}
-              data-tour={item.label === "Integrations" ? "nav-integrations" : undefined}
+              data-tour={
+                item.label === "Integrations"
+                  ? "nav-integrations"
+                  : item.label === "Writing style"
+                    ? "nav-writing-style"
+                    : undefined
+              }
               activeOptions={{ exact: item.to === "/" }}
               className="rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground data-[status=active]:bg-muted data-[status=active]:text-foreground"
             >

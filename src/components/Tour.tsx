@@ -13,6 +13,11 @@ export const TOUR_STEPS: TourStep[] = [
     body: "FocusBlock reads from the tools you already use. Connect them here.",
   },
   {
+    anchor: "nav-writing-style",
+    title: "Writing style",
+    body: "Add examples of how you write, or upload files. FocusBlock turns them into a style guide, and every draft it writes for you follows it.",
+  },
+  {
     anchor: "left-panel",
     title: "Blocks",
     body: "Blocks represent a group of context or a project. The number is how many items need your attention.",

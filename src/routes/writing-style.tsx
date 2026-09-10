@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Sparkles, Upload, X } from "lucide-react";
 
 export const Route = createFileRoute("/writing-style")({
   head: () => ({
@@ -77,10 +77,35 @@ function WritingStylePage() {
   const [draft, setDraft] = useState("");
   const [source, setSource] = useState("");
   const [state, setState] = useState<"idle" | "generating" | "ready">("idle");
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  // The pause is driven by state so a re-render can never strand it in "generating".
+  useEffect(() => {
+    if (state !== "generating") return;
+    const id = setTimeout(() => setState("ready"), 1400);
+    return () => clearTimeout(id);
+  }, [state]);
 
   function generate() {
     setState("generating");
-    window.setTimeout(() => setState("ready"), 1400);
+  }
+
+  function addFiles(files: FileList | null) {
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const isText = /\.(txt|md|eml|csv)$/i.test(file.name) || file.type.startsWith("text/");
+      const add = (text: string) =>
+        setExamples((list) => [
+          ...list,
+          { id: `ex-${Date.now()}-${file.name}`, source: `Uploaded, ${file.name}`, text },
+        ]);
+      if (isText) {
+        file.text().then((t) => add(t.trim().slice(0, 1200) || `(${file.name} was empty)`));
+      } else {
+        add(`${file.name}, ${Math.max(1, Math.round(file.size / 1024))} KB. Read as an example of how you write.`);
+      }
+    });
+    setState("idle");
   }
 
   return (
@@ -143,12 +168,34 @@ function WritingStylePage() {
               placeholder="Paste something you wrote"
               className="mt-2 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
             />
-            <div className="mt-3 flex justify-end">
+            <div className="mt-3 flex items-center justify-between">
+              <input
+                ref={fileInput}
+                type="file"
+                multiple
+                accept=".txt,.md,.eml,.csv,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                className="btn-base btn-quiet"
+                onClick={() => fileInput.current?.click()}
+              >
+                <Upload className="mr-1.5 inline h-3.5 w-3.5" strokeWidth={1.5} />
+                Upload files
+              </button>
               <button type="submit" className="btn-base btn-quiet" disabled={!draft.trim()}>
                 Add example
               </button>
             </div>
           </form>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Text files are read as examples. Other files are listed by name. Nothing leaves your browser.
+          </p>
         </section>
 
         <section>
