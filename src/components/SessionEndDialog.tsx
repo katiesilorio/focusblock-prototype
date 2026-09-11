@@ -82,13 +82,30 @@ function buildLines(events: SessionEvent[]): Line[] {
       lines.push({ icon: "jira", text: `Moved ${t.label} to ${t.detail}`, links: [t] });
     });
 
-  const done = by("done");
-  if (done.length > 0)
+  // Marked done: one line per tool, so "cleared 2 Slack messages" reads as its own win.
+  const doneWords: Record<ChipKind, [string, string]> = {
+    slack: ["Slack message", "Slack messages"],
+    email: ["email", "emails"],
+    jira: ["Jira ticket", "Jira tickets"],
+    doc: ["doc comment", "doc comments"],
+    sheet: ["sheet comment", "sheet comments"],
+    slide: ["deck comment", "deck comments"],
+    link: ["cue", "cues"],
+  };
+  (["slack", "email", "jira", "doc", "sheet", "slide", "link"] as ChipKind[]).forEach((icon) => {
+    const done = by("done", icon);
+    if (done.length === 0) return;
+    const [one, many] = doneWords[icon];
     lines.push({
-      icon: done[0].icon,
-      text: `Marked ${plural(done.length, "cue", "cues")} done`,
+      icon,
+      text: `Cleared ${plural(done.length, one, many)}${
+        icon === "slack" || icon === "email"
+          ? `, ${joinNames(done.map((e) => firstName(e.person ?? "")).filter(Boolean))}`
+          : ""
+      }`,
       links: done,
     });
+  });
 
   const context = by("context");
   if (context.length > 0) {

@@ -229,7 +229,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         patchCue(cueId, { resolved: true, snoozed: false });
         log(cueId, "Marked done");
         setCounters((c) => ({ ...c, resolved: c.resolved + 1 }));
-        if (cue) record({ kind: "done", icon: cueIcon(cue), label: cue.origin, url: cueUrl(cue) });
+        if (cue)
+          record({
+            kind: "done",
+            icon: cueIcon(cue),
+            label: cue.ticketKey ?? cue.origin,
+            url: cueUrl(cue),
+            person: cue.sender,
+          });
       },
       snooze(cueId, until) {
         patchCue(cueId, { snoozed: true });
